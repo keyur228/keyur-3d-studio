@@ -16,6 +16,8 @@
  *  /public/thumbnails and /public/packs — overwrite them with your own renders.
  */
 
+import { asset } from '@/lib/asset'
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type AssetCategory = 'Props' | 'Environments' | 'Sci-Fi' | 'Stylized' | 'Shaders'
@@ -142,8 +144,8 @@ export const individualAssets: IndividualAsset[] = [
       'physics simulation. Every fruit is a unique mesh at real-world scale with baked 4K PBR and ' +
       'subsurface textures, its own convex collider, and metadata for grabbing, inspecting and snap-back.',
     categories: ['Props', 'Environments'],
-    thumbnailUrl: '/projects/fruit-crate/thumb.webp',
-    modelUrl: '/models/fruit-crate.glb',
+    thumbnailUrl: asset('/projects/fruit-crate/thumb.webp'),
+    modelUrl: asset('/models/fruit-crate.glb'),
     fallbackModel: 'sciFiCrate',
     polyCount: '54.6k Tris',
     textures: '4K PBR + SSS',
@@ -155,9 +157,9 @@ export const individualAssets: IndividualAsset[] = [
     featured: true,
     previewSize: '6 MB',
     renders: [
-      { src: '/projects/fruit-crate/hero.webp', caption: 'Hero render — Cycles, studio lighting' },
-      { src: '/projects/fruit-crate/top.webp', caption: 'Top-down view of the five compartments' },
-      { src: '/projects/fruit-crate/closeup.webp', caption: 'Close-up of the subsurface fruit materials' },
+      { src: asset('/projects/fruit-crate/hero.webp'), caption: 'Hero render — Cycles, studio lighting' },
+      { src: asset('/projects/fruit-crate/top.webp'), caption: 'Top-down view of the five compartments' },
+      { src: asset('/projects/fruit-crate/closeup.webp'), caption: 'Close-up of the subsurface fruit materials' },
     ],
     highlights: [
       '27 unique fruit — apples, oranges, kiwis, pears and pineapples — settled with Bullet physics',
@@ -176,8 +178,8 @@ export const individualAssets: IndividualAsset[] = [
       'A (2,3) torus-knot shader study exploring thin-film iridescence, clearcoat layering and ' +
       'procedural roughness breakup. Built as a look-dev test bed for Cycles and Eevee Next.',
     categories: ['Shaders', 'Stylized'],
-    thumbnailUrl: '/thumbnails/hyper-knot.svg',
-    modelUrl: '/models/hyper-knot.glb',
+    thumbnailUrl: asset('/thumbnails/hyper-knot.svg'),
+    modelUrl: asset('/models/hyper-knot.glb'),
     fallbackModel: 'hyperKnot',
     polyCount: '18.4k Tris',
     textures: 'Procedural',
@@ -195,8 +197,8 @@ export const individualAssets: IndividualAsset[] = [
       'Hand-shaped crystal cluster with faceted low-poly silhouette, baked gradient emission and ' +
       'a shared trim atlas — designed to scatter across stylized cave and fantasy environments.',
     categories: ['Stylized', 'Environments', 'Props'],
-    thumbnailUrl: '/thumbnails/prism-crystals.svg',
-    modelUrl: '/models/prism-crystals.glb',
+    thumbnailUrl: asset('/thumbnails/prism-crystals.svg'),
+    modelUrl: asset('/models/prism-crystals.glb'),
     fallbackModel: 'crystalCluster',
     polyCount: '6.8k Tris',
     textures: '2K Stylized',
@@ -214,8 +216,8 @@ export const individualAssets: IndividualAsset[] = [
       'Quad-rotor recon drone modeled with a boolean-free hard-surface workflow, weighted normals ' +
       'and a 4K PBR texture set. Rigged rotors and a looping hover animation included.',
     categories: ['Sci-Fi', 'Props'],
-    thumbnailUrl: '/thumbnails/sentinel-drone.svg',
-    modelUrl: '/models/sentinel-drone.glb',
+    thumbnailUrl: asset('/thumbnails/sentinel-drone.svg'),
+    modelUrl: asset('/models/sentinel-drone.glb'),
     fallbackModel: 'mechDrone',
     polyCount: '24.6k Tris',
     textures: '4K PBR',
@@ -233,8 +235,8 @@ export const individualAssets: IndividualAsset[] = [
       'Industrial sci-fi cargo crate with bevelled panels, emissive status strips and a trim-sheet ' +
       'texture approach so variants can be produced in minutes.',
     categories: ['Sci-Fi', 'Props'],
-    thumbnailUrl: '/thumbnails/cargo-crate.svg',
-    modelUrl: '/models/cargo-crate.glb',
+    thumbnailUrl: asset('/thumbnails/cargo-crate.svg'),
+    modelUrl: asset('/models/cargo-crate.glb'),
     fallbackModel: 'sciFiCrate',
     polyCount: '3.2k Tris',
     textures: '4K PBR',
@@ -252,8 +254,8 @@ export const individualAssets: IndividualAsset[] = [
       'Gyroscopic reactor core with counter-rotating rings and an animated volumetric-look emissive ' +
       'shader. Optimised as a lightweight GLB centerpiece for WebGL landing pages.',
     categories: ['Sci-Fi', 'Shaders'],
-    thumbnailUrl: '/thumbnails/fusion-core.svg',
-    modelUrl: '/models/fusion-core.glb',
+    thumbnailUrl: asset('/thumbnails/fusion-core.svg'),
+    modelUrl: asset('/models/fusion-core.glb'),
     fallbackModel: 'energyCore',
     polyCount: '15.1k Tris',
     textures: 'Emissive Shader',
@@ -271,8 +273,8 @@ export const individualAssets: IndividualAsset[] = [
       'Faceted stylized tree with wind-ready vertex colors and a single gradient atlas material. ' +
       'Three size variants share one 256px texture for near-zero draw-call cost.',
     categories: ['Stylized', 'Environments'],
-    thumbnailUrl: '/thumbnails/grove-tree.svg',
-    modelUrl: '/models/grove-tree.glb',
+    thumbnailUrl: asset('/thumbnails/grove-tree.svg'),
+    modelUrl: asset('/models/grove-tree.glb'),
     fallbackModel: 'lowPolyTree',
     polyCount: '1.9k Tris',
     textures: 'Gradient Atlas',
@@ -290,8 +292,8 @@ export const individualAssets: IndividualAsset[] = [
       'Weathered stone shrine with a floating relic, sculpted in high-poly and baked down to a ' +
       'clean game mesh. Tileable 4K stone material and glowing rune decals included.',
     categories: ['Environments', 'Props'],
-    thumbnailUrl: '/thumbnails/monolith-shrine.svg',
-    modelUrl: '/models/monolith-shrine.glb',
+    thumbnailUrl: asset('/thumbnails/monolith-shrine.svg'),
+    modelUrl: asset('/models/monolith-shrine.glb'),
     fallbackModel: 'monolithShrine',
     polyCount: '9.4k Tris',
     textures: '4K PBR',
@@ -309,8 +311,8 @@ export const individualAssets: IndividualAsset[] = [
       'A metaball-style liquid chrome sphere driven entirely by procedural noise displacement — ' +
       'no textures, fully animatable and tuned for product-style motion loops.',
     categories: ['Shaders'],
-    thumbnailUrl: '/thumbnails/chrome-orb.svg',
-    modelUrl: '/models/chrome-orb.glb',
+    thumbnailUrl: asset('/thumbnails/chrome-orb.svg'),
+    modelUrl: asset('/models/chrome-orb.glb'),
     fallbackModel: 'liquidOrb',
     polyCount: '32.0k Tris',
     textures: 'Procedural',
@@ -325,11 +327,11 @@ export const individualAssets: IndividualAsset[] = [
 // ── Asset packs (open the image lightbox) ────────────────────────────────────
 
 const packGallery = (id: string): PackImage[] => [
-  { src: `/packs/${id}/cover.svg`, caption: 'Hero composition', kind: 'Beauty' },
-  { src: `/packs/${id}/01-beauty.svg`, caption: 'Textured beauty shot', kind: 'Beauty' },
-  { src: `/packs/${id}/02-clay.svg`, caption: 'Clay render — form & silhouette', kind: 'Clay' },
-  { src: `/packs/${id}/03-wireframe.svg`, caption: 'Topology / wireframe pass', kind: 'Wireframe' },
-  { src: `/packs/${id}/04-overview.svg`, caption: 'Asset overview sheet', kind: 'Overview' },
+  { src: asset(`/packs/${id}/cover.svg`), caption: 'Hero composition', kind: 'Beauty' },
+  { src: asset(`/packs/${id}/01-beauty.svg`), caption: 'Textured beauty shot', kind: 'Beauty' },
+  { src: asset(`/packs/${id}/02-clay.svg`), caption: 'Clay render — form & silhouette', kind: 'Clay' },
+  { src: asset(`/packs/${id}/03-wireframe.svg`), caption: 'Topology / wireframe pass', kind: 'Wireframe' },
+  { src: asset(`/packs/${id}/04-overview.svg`), caption: 'Asset overview sheet', kind: 'Overview' },
 ]
 
 export const assetPacks: AssetPack[] = [
@@ -341,7 +343,7 @@ export const assetPacks: AssetPack[] = [
       'A snap-to-grid modular kit for building dense cyberpunk streets: towers, kiosks, ' +
       'skybridges, signage and rooftop greebles, all sharing two trim sheets and an emissive atlas.',
     categories: ['Sci-Fi', 'Environments'],
-    coverImage: '/packs/neon-district/cover.svg',
+    coverImage: asset('/packs/neon-district/cover.svg'),
     galleryImages: packGallery('neon-district'),
     assetCount: '45+ Modular Assets',
     formats: ['.BLEND', '.FBX', '.OBJ', '.GLB'],
@@ -367,7 +369,7 @@ export const assetPacks: AssetPack[] = [
       'Hand-crafted stylized foliage, mushrooms, rocks and ground scatter with gradient-atlas ' +
       'materials — built for mobile, WebGL and stylized PC titles.',
     categories: ['Stylized', 'Environments'],
-    coverImage: '/packs/fantasy-forest/cover.svg',
+    coverImage: asset('/packs/fantasy-forest/cover.svg'),
     galleryImages: packGallery('fantasy-forest'),
     assetCount: '60+ Stylized Assets',
     formats: ['.BLEND', '.FBX', '.GLB'],
@@ -393,7 +395,7 @@ export const assetPacks: AssetPack[] = [
       'A production kitbash library of bolts, vents, hatches, pipes and panel inserts with clean ' +
       'shading — drop them on any hard-surface model to add instant mechanical detail.',
     categories: ['Sci-Fi', 'Props'],
-    coverImage: '/packs/kitbash-vol1/cover.svg',
+    coverImage: asset('/packs/kitbash-vol1/cover.svg'),
     galleryImages: packGallery('kitbash-vol1'),
     assetCount: '120+ Kitbash Parts',
     formats: ['.BLEND', '.FBX', '.OBJ'],
@@ -419,7 +421,7 @@ export const assetPacks: AssetPack[] = [
       'Sun-bleached pillars, broken arches, obelisks and rubble sculpted in high detail and baked ' +
       'to game-ready meshes with tileable sandstone materials.',
     categories: ['Environments'],
-    coverImage: '/packs/desert-ruins/cover.svg',
+    coverImage: asset('/packs/desert-ruins/cover.svg'),
     galleryImages: packGallery('desert-ruins'),
     assetCount: '38 Environment Assets',
     formats: ['.BLEND', '.FBX', '.OBJ', '.GLB'],
