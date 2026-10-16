@@ -1,0 +1,15 @@
+node_modules
+dist
+.env
+.env.local
+*.log
+
+# Blender source bundle (620 MB of 4K textures, .blend and exports).
+# The site ships its own web copies in public/models and public/projects.
+Blender/
+
+# Local editor / agent tooling
+.claude/
+__pycache__/
+.DS_Store
+Thumbs.db
