@@ -84,7 +84,7 @@ The placeholder SVG renders in `public/thumbnails` and `public/packs` are stand-
 
 ## Request form email delivery
 
-The form sends to **keyurkurani5@gmail.com**.
+The form sends to **assetcrate02@gmail.com**.
 
 - **No setup needed:** with no provider configured, Send Request opens the visitor's email app with a pre-filled subject and body (`mailto:`). A **Copy Email** button is always available.
 - **Direct delivery (recommended):** copy `.env.example` to `.env` and configure one provider:

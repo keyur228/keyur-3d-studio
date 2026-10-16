@@ -99,7 +99,7 @@ export interface SkillGroup {
 export const profile = {
   name: 'Keyur',
   brand: 'KEYUR // 3D STUDIO',
-  email: 'keyurkurani5@gmail.com',
+  email: 'assetcrate02@gmail.com',
   roles: ['3D Artist', 'Blender Specialist', 'Motion Designer'],
   location: 'Based in India, working worldwide',
   availability: 'Available for custom 3D & animation work',
@@ -140,9 +140,10 @@ export const individualAssets: IndividualAsset[] = [
     title: 'Market Fruit Crate',
     subtitle: 'Interactive, physics-ready game asset',
     description:
-      'A slatted pine market crate with five compartments, filled with 27 fruit settled by a Bullet ' +
-      'physics simulation. Every fruit is a unique mesh at real-world scale with baked 4K PBR and ' +
-      'subsurface textures, its own convex collider, and metadata for grabbing, inspecting and snap-back.',
+      'A slatted pine market crate with five compartments, one per fruit type, settled into place with a ' +
+      'Bullet physics simulation. Each fruit type is modeled once and varied in shape and size per piece, at ' +
+      'real-world scale, with baked 4K PBR and subsurface textures, a convex collider per piece, and metadata ' +
+      'for grabbing, inspecting and snap-back.',
     categories: ['Props', 'Environments'],
     thumbnailUrl: asset('/projects/fruit-crate/thumb.webp'),
     modelUrl: asset('/models/fruit-crate.glb'),
@@ -162,7 +163,7 @@ export const individualAssets: IndividualAsset[] = [
       { src: asset('/projects/fruit-crate/closeup.webp'), caption: 'Close-up of the subsurface fruit materials' },
     ],
     highlights: [
-      '27 unique fruit — apples, oranges, kiwis, pears and pineapples — settled with Bullet physics',
+      'Five fruit types — apples, oranges, kiwis, pears and pineapples — with per-piece shape and size variation, settled with Bullet physics',
       '60 × 40 × 25 cm crate at real-world scale, origins at each centre of mass',
       'Seven 4K baked texture sets with subsurface, sheen (kiwi) and clearcoat (orange)',
       '42 Unreal-style UCX convex colliders plus mass, grab and snap-back metadata',
