@@ -172,6 +172,45 @@ export const individualAssets: IndividualAsset[] = [
     ],
   },
   {
+    id: 'cozy-house',
+    title: 'Cozy House Interior',
+    subtitle: 'Interactive, explorable game environment',
+    description:
+      'A furnished cottage interior built for first-person or orbit exploration: golden-hour sun through sheer ' +
+      'linen, a bouclé sofa, a brick fireplace, a sage kitchen with brass hardware and a herringbone oak floor. ' +
+      'Doors and drawers are rigged on real hinge and slide axes, every lamp toggles its light and glow together, ' +
+      'and the clutter is grabbable with physics metadata — with navmesh, colliders and baked lightmaps ready for an engine.',
+    categories: ['Environments', 'Props'],
+    thumbnailUrl: asset('/projects/cozy-house/thumb.webp'),
+    modelUrl: asset('/models/cozy-house.glb'),
+    fallbackModel: 'monolithShrine',
+    polyCount: '345k Tris',
+    textures: '2K PBR + 4K lightmaps',
+    topology: 'Game-ready · dual UVs',
+    software: ['Blender', 'Cycles', 'Poly Haven'],
+    tags: ['Interactive', 'Game-Ready', 'glTF / FBX'],
+    accent: '#7d8f62',
+    year: 2026,
+    previewSize: '23 MB',
+    renders: [
+      { src: asset('/projects/cozy-house/living.webp'), caption: 'Living room — golden-hour sun through sheer linen' },
+      { src: asset('/projects/cozy-house/kitchen.webp'), caption: 'Sage kitchen, butcher-block island and the fruit crate' },
+      { src: asset('/projects/cozy-house/bedroom.webp'), caption: 'Bedroom with oak bed, walnut nightstands and lamps' },
+      { src: asset('/projects/cozy-house/living-evening.webp'), caption: 'Evening — sun off, the same lamps switched on' },
+      { src: asset('/projects/cozy-house/cutaway.webp'), caption: 'Cut-away of the whole floor plan' },
+      { src: asset('/projects/cozy-house/crate.webp'), caption: 'The fruit crate on the kitchen island' },
+    ],
+    highlights: [
+      '85.8 m² explorable cottage with golden-hour lighting',
+      '17 hinged doors and 11 drawers, each with a real pivot and limits',
+      '10 lights that switch the lamp and its emissive glow together',
+      '58 grabbable props, including the fruit crate on the kitchen island',
+      'Navmesh, 150 UCX colliders and camera POIs',
+      'Dual UVs with 4K baked lightmaps',
+      '26/26 automated checks passing',
+    ],
+  },
+  {
     id: 'hyper-knot',
     title: 'Hyper Knot',
     subtitle: 'Iridescent Shader Study',
