@@ -1,11 +1,11 @@
-import { Component, Suspense, useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'react'
+import { Component, Suspense, use, useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react'
 import { useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-import type { IndividualAsset } from '@/data/portfolioData'
+import type { Project } from '@/data/portfolioData'
 import { ProceduralModel } from './ProceduralModels'
-import { LoadingSpinner3D } from './LoadingSpinner3D'
+import { MorphLoader } from './MorphLoader'
 
 interface ViewProps {
   wireframe: boolean
@@ -30,19 +30,6 @@ function checkModel(url: string) {
   return availability.get(url)!
 }
 
-function useModelAvailable(url?: string) {
-  const [state, setState] = useState<'checking' | 'yes' | 'no'>(url ? 'checking' : 'no')
-  useEffect(() => {
-    if (!url) return setState('no')
-    let alive = true
-    setState('checking')
-    checkModel(url).then((ok) => alive && setState(ok ? 'yes' : 'no'))
-    return () => {
-      alive = false
-    }
-  }, [url])
-  return state
-}
 
 // ── Error boundary (corrupt / unsupported files fall back to procedural) ───
 class ModelErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -153,18 +140,22 @@ function GLBModel({ url, wireframe, clay }: { url: string } & Omit<ViewProps, 'w
 /**
  * Renders an asset's .glb when present, otherwise its procedural fallback.
  */
-export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: IndividualAsset } & ViewProps) {
-  const available = useModelAvailable(asset.modelUrl)
+export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: Project } & ViewProps) {
   const fallback = <ProceduralModel id={asset.fallbackModel} wireframe={wireframe} clay={clay} wireColor={wireColor} />
+  if (!asset.modelUrl) return fallback
 
-  if (available === 'checking') return <LoadingSpinner3D />
-  if (available === 'no' || !asset.modelUrl) return fallback
-
+  // The availability check and the download both suspend under one boundary,
+  // so the loader plays continuously instead of restarting between them.
   return (
     <ModelErrorBoundary fallback={fallback}>
-      <Suspense fallback={<LoadingSpinner3D />}>
-        <GLBModel url={asset.modelUrl} wireframe={wireframe} clay={clay} />
+      <Suspense fallback={<MorphLoader />}>
+        <CheckedGLB url={asset.modelUrl} fallback={fallback} wireframe={wireframe} clay={clay} />
       </Suspense>
     </ModelErrorBoundary>
   )
+}
+
+function CheckedGLB({ url, fallback, ...view }: { url: string; fallback: ReactNode } & Omit<ViewProps, 'wireColor'>) {
+  const available = use(checkModel(url))
+  return available ? <GLBModel url={url} {...view} /> : fallback
 }

@@ -1,10 +1,10 @@
 import { ArrowDownRight, ArrowUpRight, Box } from 'lucide-react'
-import { individualAssets, profile } from '@/data/portfolioData'
+import { projects, profile } from '@/data/portfolioData'
 import { scrollToTarget } from '@/lib/scroll'
 import { useStore } from '@/store/useStore'
 import { Reveal } from '@/components/ui/Reveal'
 
-const featured = individualAssets.find((a) => a.featured) ?? individualAssets[0]
+const featured = projects.find((a) => a.featured) ?? projects[0]
 
 export function Hero() {
   const openAsset = useStore((s) => s.openAsset)
@@ -21,8 +21,8 @@ export function Hero() {
           </h1>
           <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-2">{profile.intro}</p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <button type="button" onClick={() => scrollToTarget('#work')} className="btn btn-primary">
-              View selected work <ArrowDownRight className="h-4 w-4" />
+            <button type="button" onClick={() => scrollToTarget('#projects')} className="btn btn-primary">
+              View projects <ArrowDownRight className="h-4 w-4" />
             </button>
             <button type="button" onClick={() => scrollToTarget('#request')} className="btn btn-ghost">
               Request an asset

@@ -3,17 +3,12 @@
  *  PORTFOLIO DATA — edit this file to update the whole site.
  * ─────────────────────────────────────────────────────────────────────────────
  *
- *  • Individual assets open the live 3D inspector.
+ *  • `projects` are listed in the Projects section; each opens the live 3D preview.
  *      - thumbnailUrl → any image in /public (png / jpg / webp / svg)
  *      - modelUrl     → a .glb / .gltf in /public/models. If the file is missing
- *                       or fails to load, the inspector automatically shows the
- *                       procedural `fallbackModel` instead, so nothing breaks.
- *
- *  • Asset packs open the multi-image lightbox (no WebGL).
- *      - coverImage + galleryImages[] → any images in /public/packs/<pack>/
- *
- *  The placeholder renders that ship with the project live in
- *  /public/thumbnails and /public/packs — overwrite them with your own renders.
+ *                       or fails to load, the preview shows the procedural
+ *                       `fallbackModel` instead, so nothing breaks.
+ *      - renders      → stills shown in the preview's "Renders" tab.
  */
 
 import { asset } from '@/lib/asset'
@@ -33,7 +28,7 @@ export type ProceduralModelId =
   | 'monolithShrine'
   | 'liquidOrb'
 
-export interface IndividualAsset {
+export interface Project {
   id: string
   title: string
   subtitle: string
@@ -57,33 +52,8 @@ export interface IndividualAsset {
   highlights?: string[]
   /** Download size of the 3D preview, shown before it loads (e.g. '6 MB'). */
   previewSize?: string
-  /** The first featured asset is shown in the hero. */
+  /** The first featured project is shown in the hero. */
   featured?: boolean
-}
-
-export interface PackImage {
-  src: string
-  caption: string
-  kind: 'Beauty' | 'Clay' | 'Wireframe' | 'Overview' | 'Detail'
-}
-
-export interface AssetPack {
-  id: string
-  title: string
-  tagline: string
-  description: string
-  categories: AssetCategory[]
-  coverImage: string
-  galleryImages: PackImage[]
-  assetCount: string
-  formats: string[]
-  tags: string[]
-  contents: { group: string; items: string[] }[]
-  specs: { label: string; value: string }[]
-  accent: string
-  /** Optional store link (Gumroad, ArtStation, Blender Market, Fab…). Hidden when empty. */
-  storeUrl?: string
-  price?: string
 }
 
 export interface SkillGroup {
@@ -132,9 +102,9 @@ export const profile = {
   ],
 }
 
-// ── Individual 3D assets (open the live inspector) ───────────────────────────
+// ── Projects (each opens the live 3D preview) ────────────────────────────────
 
-export const individualAssets: IndividualAsset[] = [
+export const projects: Project[] = [
   {
     id: 'fruit-crate',
     title: 'Market Fruit Crate',
@@ -210,278 +180,7 @@ export const individualAssets: IndividualAsset[] = [
       '26/26 automated checks passing',
     ],
   },
-  {
-    id: 'hyper-knot',
-    title: 'Hyper Knot',
-    subtitle: 'Iridescent Shader Study',
-    description:
-      'A (2,3) torus-knot shader study exploring thin-film iridescence, clearcoat layering and ' +
-      'procedural roughness breakup. Built as a look-dev test bed for Cycles and Eevee Next.',
-    categories: ['Shaders', 'Stylized'],
-    thumbnailUrl: asset('/thumbnails/hyper-knot.svg'),
-    modelUrl: asset('/models/hyper-knot.glb'),
-    fallbackModel: 'hyperKnot',
-    polyCount: '18.4k Tris',
-    textures: 'Procedural',
-    topology: 'All-Quad · Subd Ready',
-    software: ['Blender', 'Cycles'],
-    tags: ['Iridescence', 'Clearcoat', 'Look-Dev'],
-    accent: '#6366f1',
-    year: 2026,
-  },
-  {
-    id: 'prism-crystals',
-    title: 'Prism Crystal Cluster',
-    subtitle: 'Stylized Environment Prop',
-    description:
-      'Hand-shaped crystal cluster with faceted low-poly silhouette, baked gradient emission and ' +
-      'a shared trim atlas — designed to scatter across stylized cave and fantasy environments.',
-    categories: ['Stylized', 'Environments', 'Props'],
-    thumbnailUrl: asset('/thumbnails/prism-crystals.svg'),
-    modelUrl: asset('/models/prism-crystals.glb'),
-    fallbackModel: 'crystalCluster',
-    polyCount: '6.8k Tris',
-    textures: '2K Stylized',
-    topology: 'Low-Poly · Game-Ready',
-    software: ['Blender', 'Substance Painter'],
-    tags: ['Emissive', 'Scatter Ready', 'Gradient Atlas'],
-    accent: '#a855f7',
-    year: 2026,
-  },
-  {
-    id: 'sentinel-drone',
-    title: 'Sentinel Recon Drone',
-    subtitle: 'Hard-Surface Hero Asset',
-    description:
-      'Quad-rotor recon drone modeled with a boolean-free hard-surface workflow, weighted normals ' +
-      'and a 4K PBR texture set. Rigged rotors and a looping hover animation included.',
-    categories: ['Sci-Fi', 'Props'],
-    thumbnailUrl: asset('/thumbnails/sentinel-drone.svg'),
-    modelUrl: asset('/models/sentinel-drone.glb'),
-    fallbackModel: 'mechDrone',
-    polyCount: '24.6k Tris',
-    textures: '4K PBR',
-    topology: 'Weighted Normals · LOD0–2',
-    software: ['Blender', 'Substance Painter', 'Unreal'],
-    tags: ['Hard-Surface', 'Rigged', 'Animated'],
-    accent: '#06b6d4',
-    year: 2026,
-  },
-  {
-    id: 'cargo-crate',
-    title: 'Cargo Crate MK-II',
-    subtitle: 'Modular Sci-Fi Prop',
-    description:
-      'Industrial sci-fi cargo crate with bevelled panels, emissive status strips and a trim-sheet ' +
-      'texture approach so variants can be produced in minutes.',
-    categories: ['Sci-Fi', 'Props'],
-    thumbnailUrl: asset('/thumbnails/cargo-crate.svg'),
-    modelUrl: asset('/models/cargo-crate.glb'),
-    fallbackModel: 'sciFiCrate',
-    polyCount: '3.2k Tris',
-    textures: '4K PBR',
-    topology: 'Game-Ready · Trim Sheet',
-    software: ['Blender', 'Substance Painter'],
-    tags: ['Trim Sheet', 'Modular', 'Emissive'],
-    accent: '#e87d0d',
-    year: 2025,
-  },
-  {
-    id: 'fusion-core',
-    title: 'Fusion Reactor Core',
-    subtitle: 'Animated Emissive Centerpiece',
-    description:
-      'Gyroscopic reactor core with counter-rotating rings and an animated volumetric-look emissive ' +
-      'shader. Optimised as a lightweight GLB centerpiece for WebGL landing pages.',
-    categories: ['Sci-Fi', 'Shaders'],
-    thumbnailUrl: asset('/thumbnails/fusion-core.svg'),
-    modelUrl: asset('/models/fusion-core.glb'),
-    fallbackModel: 'energyCore',
-    polyCount: '15.1k Tris',
-    textures: 'Emissive Shader',
-    topology: 'Optimised · Web Ready',
-    software: ['Blender', 'Three.js'],
-    tags: ['Animated', 'WebGL', 'Emissive'],
-    accent: '#22d3ee',
-    year: 2026,
-  },
-  {
-    id: 'grove-tree',
-    title: 'Low-Poly Grove Tree',
-    subtitle: 'Stylized Foliage',
-    description:
-      'Faceted stylized tree with wind-ready vertex colors and a single gradient atlas material. ' +
-      'Three size variants share one 256px texture for near-zero draw-call cost.',
-    categories: ['Stylized', 'Environments'],
-    thumbnailUrl: asset('/thumbnails/grove-tree.svg'),
-    modelUrl: asset('/models/grove-tree.glb'),
-    fallbackModel: 'lowPolyTree',
-    polyCount: '1.9k Tris',
-    textures: 'Gradient Atlas',
-    topology: 'Low-Poly · Vertex Color',
-    software: ['Blender', 'Unity'],
-    tags: ['Foliage', 'Wind Ready', 'Mobile'],
-    accent: '#34d399',
-    year: 2025,
-  },
-  {
-    id: 'monolith-shrine',
-    title: 'Ancient Monolith Shrine',
-    subtitle: 'Environment Set-Piece',
-    description:
-      'Weathered stone shrine with a floating relic, sculpted in high-poly and baked down to a ' +
-      'clean game mesh. Tileable 4K stone material and glowing rune decals included.',
-    categories: ['Environments', 'Props'],
-    thumbnailUrl: asset('/thumbnails/monolith-shrine.svg'),
-    modelUrl: asset('/models/monolith-shrine.glb'),
-    fallbackModel: 'monolithShrine',
-    polyCount: '9.4k Tris',
-    textures: '4K PBR',
-    topology: 'Baked High→Low',
-    software: ['Blender', 'ZBrush', 'Substance Painter'],
-    tags: ['Sculpted', 'Baked', 'Decals'],
-    accent: '#f59e0b',
-    year: 2025,
-  },
-  {
-    id: 'chrome-orb',
-    title: 'Chrome Liquid Orb',
-    subtitle: 'Procedural Displacement Shader',
-    description:
-      'A metaball-style liquid chrome sphere driven entirely by procedural noise displacement — ' +
-      'no textures, fully animatable and tuned for product-style motion loops.',
-    categories: ['Shaders'],
-    thumbnailUrl: asset('/thumbnails/chrome-orb.svg'),
-    modelUrl: asset('/models/chrome-orb.glb'),
-    fallbackModel: 'liquidOrb',
-    polyCount: '32.0k Tris',
-    textures: 'Procedural',
-    topology: 'Subdivided Sphere',
-    software: ['Blender', 'Geometry Nodes'],
-    tags: ['Displacement', 'Chrome', 'Loopable'],
-    accent: '#818cf8',
-    year: 2026,
-  },
 ]
-
-// ── Asset packs (open the image lightbox) ────────────────────────────────────
-
-const packGallery = (id: string): PackImage[] => [
-  { src: asset(`/packs/${id}/cover.svg`), caption: 'Hero composition', kind: 'Beauty' },
-  { src: asset(`/packs/${id}/01-beauty.svg`), caption: 'Textured beauty shot', kind: 'Beauty' },
-  { src: asset(`/packs/${id}/02-clay.svg`), caption: 'Clay render — form & silhouette', kind: 'Clay' },
-  { src: asset(`/packs/${id}/03-wireframe.svg`), caption: 'Topology / wireframe pass', kind: 'Wireframe' },
-  { src: asset(`/packs/${id}/04-overview.svg`), caption: 'Asset overview sheet', kind: 'Overview' },
-]
-
-export const assetPacks: AssetPack[] = [
-  {
-    id: 'neon-district',
-    title: 'Neon District',
-    tagline: 'Modular Cyberpunk City Kit',
-    description:
-      'A snap-to-grid modular kit for building dense cyberpunk streets: towers, kiosks, ' +
-      'skybridges, signage and rooftop greebles, all sharing two trim sheets and an emissive atlas.',
-    categories: ['Sci-Fi', 'Environments'],
-    coverImage: asset('/packs/neon-district/cover.svg'),
-    galleryImages: packGallery('neon-district'),
-    assetCount: '45+ Modular Assets',
-    formats: ['.BLEND', '.FBX', '.OBJ', '.GLB'],
-    tags: ['Modular', 'Cyberpunk', 'Trim Sheets', 'Emissive'],
-    contents: [
-      { group: 'Architecture', items: ['12 tower modules', '8 wall & floor tiles', '4 skybridges'] },
-      { group: 'Props', items: ['10 kiosks & vending units', '6 vent / AC stacks', '5 holo billboards'] },
-      { group: 'Materials', items: ['2 tileable trim sheets', '1 emissive signage atlas', 'Wet-street shader'] },
-    ],
-    specs: [
-      { label: 'Total Tris', value: '186k' },
-      { label: 'Textures', value: '4K PBR (Metal/Rough)' },
-      { label: 'Grid', value: '2m snap · real-world scale' },
-      { label: 'Engine', value: 'Blender · Unreal · Unity' },
-    ],
-    accent: '#d946ef',
-  },
-  {
-    id: 'fantasy-forest',
-    title: 'Whispering Grove',
-    tagline: 'Stylized Fantasy Forest Pack',
-    description:
-      'Hand-crafted stylized foliage, mushrooms, rocks and ground scatter with gradient-atlas ' +
-      'materials — built for mobile, WebGL and stylized PC titles.',
-    categories: ['Stylized', 'Environments'],
-    coverImage: asset('/packs/fantasy-forest/cover.svg'),
-    galleryImages: packGallery('fantasy-forest'),
-    assetCount: '60+ Stylized Assets',
-    formats: ['.BLEND', '.FBX', '.GLB'],
-    tags: ['Stylized', 'Foliage', 'Mobile Ready', 'Wind'],
-    contents: [
-      { group: 'Foliage', items: ['14 trees (3 sizes)', '12 bushes & ferns', '6 grass clumps'] },
-      { group: 'Props', items: ['9 glowing mushrooms', '10 rocks & cliffs', '5 stumps & logs'] },
-      { group: 'Materials', items: ['1 shared 512px gradient atlas', 'Vertex-color wind setup'] },
-    ],
-    specs: [
-      { label: 'Total Tris', value: '74k' },
-      { label: 'Textures', value: '512px Gradient Atlas' },
-      { label: 'Draw Calls', value: '1 material for entire pack' },
-      { label: 'Engine', value: 'Blender · Unity · Three.js' },
-    ],
-    accent: '#34d399',
-  },
-  {
-    id: 'kitbash-vol1',
-    title: 'Hard-Surface Kitbash Vol.1',
-    tagline: 'Greebles · Panels · Mechanical Parts',
-    description:
-      'A production kitbash library of bolts, vents, hatches, pipes and panel inserts with clean ' +
-      'shading — drop them on any hard-surface model to add instant mechanical detail.',
-    categories: ['Sci-Fi', 'Props'],
-    coverImage: asset('/packs/kitbash-vol1/cover.svg'),
-    galleryImages: packGallery('kitbash-vol1'),
-    assetCount: '120+ Kitbash Parts',
-    formats: ['.BLEND', '.FBX', '.OBJ'],
-    tags: ['Kitbash', 'Hard-Surface', 'Greebles', 'Asset Browser'],
-    contents: [
-      { group: 'Mechanical', items: ['32 vents & grilles', '24 pipes & joints', '18 bolts & rings'] },
-      { group: 'Panels', items: ['28 panel inserts', '12 hatches & doors'] },
-      { group: 'Extras', items: ['Blender Asset Browser library', 'Weighted-normal presets'] },
-    ],
-    specs: [
-      { label: 'Total Tris', value: '210k' },
-      { label: 'Shading', value: 'Weighted normals · no textures needed' },
-      { label: 'Library', value: 'Blender Asset Browser ready' },
-      { label: 'Use', value: 'Concept · Hero props · Renders' },
-    ],
-    accent: '#e87d0d',
-  },
-  {
-    id: 'desert-ruins',
-    title: 'Sunken Sands',
-    tagline: 'Desert Ruins Environment Pack',
-    description:
-      'Sun-bleached pillars, broken arches, obelisks and rubble sculpted in high detail and baked ' +
-      'to game-ready meshes with tileable sandstone materials.',
-    categories: ['Environments'],
-    coverImage: asset('/packs/desert-ruins/cover.svg'),
-    galleryImages: packGallery('desert-ruins'),
-    assetCount: '38 Environment Assets',
-    formats: ['.BLEND', '.FBX', '.OBJ', '.GLB'],
-    tags: ['Sculpted', 'Ruins', 'PBR', 'Tileable'],
-    contents: [
-      { group: 'Structures', items: ['8 pillars (intact & broken)', '4 arch gates', '6 wall segments'] },
-      { group: 'Scatter', items: ['12 rubble pieces', '5 dune rocks', '3 obelisks'] },
-      { group: 'Materials', items: ['3 tileable sandstone sets', 'Sand blend shader'] },
-    ],
-    specs: [
-      { label: 'Total Tris', value: '142k' },
-      { label: 'Textures', value: '4K PBR + tileables' },
-      { label: 'Workflow', value: 'Sculpt → Retopo → Bake' },
-      { label: 'Engine', value: 'Blender · Unreal · Unity' },
-    ],
-    accent: '#f59e0b',
-  },
-]
-
-export const assetCategories: AssetCategory[] = ['Props', 'Environments', 'Sci-Fi', 'Stylized', 'Shaders']
 
 // ── Skills (rendered as a Blender-style node graph) ──────────────────────────
 

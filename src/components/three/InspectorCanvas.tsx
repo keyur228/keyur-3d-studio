@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { ContactShadows, GizmoHelper, GizmoViewport, Grid, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-import type { IndividualAsset } from '@/data/portfolioData'
+import type { Project } from '@/data/portfolioData'
 import { useStore } from '@/store/useStore'
 import { AssetModel } from './AssetModel'
 import { LightingRig, lightingPresets } from './LightingRig'
@@ -46,7 +46,7 @@ function Controls() {
  * The live WebGL inspector. Mounted only while the modal is open; R3F disposes
  * the renderer + scene graph and force-loses the GL context on unmount.
  */
-export default function InspectorCanvas({ asset }: { asset: IndividualAsset }) {
+export default function InspectorCanvas({ asset }: { asset: Project }) {
   const { wireframe, lighting } = useStore((s) => s.viewer)
   const clay = lighting === 'clay'
   const preset = lightingPresets[lighting]

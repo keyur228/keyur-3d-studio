@@ -3,18 +3,15 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { profile } from '@/data/portfolioData'
 import { scrollToTarget } from '@/lib/scroll'
-import { useStore, type ShowcaseMode } from '@/store/useStore'
 
 interface NavLink {
   label: string
   target: string
   id: string
-  mode?: ShowcaseMode
 }
 
 const links: NavLink[] = [
-  { label: 'Work', target: '#work', id: 'work', mode: 'assets' },
-  { label: 'Asset Packs', target: '#work', id: 'packs', mode: 'packs' },
+  { label: 'Projects', target: '#projects', id: 'projects' },
   { label: 'Process', target: '#process', id: 'process' },
   { label: 'Skills', target: '#skills', id: 'skills' },
   { label: 'About', target: '#about', id: 'about' },
@@ -24,8 +21,6 @@ export function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('')
-  const setShowcaseMode = useStore((s) => s.setShowcaseMode)
-  const showcaseMode = useStore((s) => s.showcaseMode)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -36,20 +31,19 @@ export function Navbar() {
 
   useEffect(() => {
     const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)), { rootMargin: '-45% 0px -50% 0px' })
-    ;['top', 'work', 'process', 'skills', 'about', 'request'].forEach((id) => {
+    ;['top', 'projects', 'process', 'skills', 'about', 'request'].forEach((id) => {
       const el = document.getElementById(id)
       if (el) io.observe(el)
     })
     return () => io.disconnect()
   }, [])
 
-  const go = (l: Pick<NavLink, 'target' | 'mode'>) => {
+  const go = (l: Pick<NavLink, 'target'>) => {
     setOpen(false)
-    if (l.mode) setShowcaseMode(l.mode)
     scrollToTarget(l.target)
   }
 
-  const isActive = (l: NavLink) => (l.mode ? active === 'work' && showcaseMode === l.mode : active === l.id)
+  const isActive = (l: NavLink) => active === l.id
 
   return (
     <header

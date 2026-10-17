@@ -4,14 +4,13 @@ import { initSmoothScroll, lockScroll } from '@/lib/scroll'
 import { useModalOpen } from '@/store/useStore'
 import { Navbar } from '@/components/sections/Navbar'
 import { Hero } from '@/components/sections/Hero'
-import { Showcase } from '@/components/sections/Showcase'
+import { Projects } from '@/components/sections/Projects'
 import { Process } from '@/components/sections/Process'
 import { Skills } from '@/components/sections/Skills'
 import { About } from '@/components/sections/About'
 import { RequestForm } from '@/components/sections/RequestForm'
 import { Footer } from '@/components/sections/Footer'
 import { InspectorModal } from '@/components/modals/InspectorModal'
-import { PackLightbox } from '@/components/modals/PackLightbox'
 import { Toaster } from '@/components/ui/Toaster'
 
 export default function App() {
@@ -29,13 +28,13 @@ export default function App() {
 
   return (
     <>
-      <a href="#work" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">
-        Skip to work
+      <a href="#projects" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">
+        Skip to projects
       </a>
       <Navbar />
       <main>
         <Hero />
-        <Showcase />
+        <Projects />
         <Process />
         <Skills />
         <About />
@@ -44,7 +43,6 @@ export default function App() {
       <Footer />
 
       <InspectorModal />
-      <PackLightbox />
       <Toaster />
     </>
   )
