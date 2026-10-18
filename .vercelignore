@@ -1,0 +1,6 @@
+Blender/
+node_modules/
+dist/
+.claude/
+.env
+.env.local
