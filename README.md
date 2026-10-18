@@ -105,7 +105,9 @@ VITE_WEB3FORMS_ACCESS_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 # VITE_EMAILJS_PUBLIC_KEY=xxxxxxxx
 ```
 
-Restart `npm run dev` after editing `.env`. If the configured service fails, the form falls back to `mailto:` automatically. On Vercel or Netlify, add the same variables in the dashboard.
+Restart `npm run dev` after editing `.env`. If the configured service fails, the form falls back to `mailto:` automatically.
+
+**This site's deployment** uses Web3Forms: the access key is the repository secret `VITE_WEB3FORMS_ACCESS_KEY` and `deploy.yml` passes it (with `VITE_FORM_PROVIDER=web3forms`) to the build. A form key is public in any client-side page, so abuse is limited in two layers: the page strips control characters, caps field lengths, has a decoy honeypot field, a 60 s per-browser cooldown and a 15 s request timeout, and ships a Content-Security-Policy that only allows connections to this origin and the form services; the rest has to be set in the Web3Forms dashboard (spam protection / captcha, and a domain allow-list if your plan has one). Rotate the key there and update the secret if it is ever abused.
 
 ---
 

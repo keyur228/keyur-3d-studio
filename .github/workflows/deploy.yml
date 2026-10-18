@@ -25,6 +25,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # Web3Forms delivers the request form to the inbox. The key lives in a repository secret (not in git) and is baked into
+          # the bundle at build time; it is public in the shipped page by design, so abuse is limited in the Web3Forms dashboard.
+          VITE_FORM_PROVIDER: web3forms
+          VITE_WEB3FORMS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS_ACCESS_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

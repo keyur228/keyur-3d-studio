@@ -77,6 +77,7 @@ export function RequestForm() {
   const [errors, setErrors] = useState<Errors>({})
   const [sending, setSending] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [decoy, setDecoy] = useState('') // honeypot: hidden from people, filled in by naive bots
   const pushToast = useStore((s) => s.pushToast)
   const serviceReady = isEmailServiceConfigured()
 
@@ -102,8 +103,10 @@ export function RequestForm() {
     }
     setSending(true)
     try {
-      const res = await submitAssetRequest(values)
-      if (res.status === 'sent') {
+      const res = await submitAssetRequest(values, decoy)
+      if (res.status === 'cooldown') {
+        pushToast({ tone: 'info', title: 'Request already sent', description: `Please wait ${res.waitSeconds}s before sending another one.` })
+      } else if (res.status === 'sent') {
         pushToast({ tone: 'success', title: 'Request sent', description: `Thanks ${values.name.split(' ')[0]} — I'll reply to ${values.email} within 24–48 hours.` })
         setValues(initial)
       } else {
@@ -166,7 +169,18 @@ export function RequestForm() {
 
           {/* Form */}
           <Reveal className="lg:col-span-8">
-            <form onSubmit={onSubmit} noValidate className="surface space-y-8 p-6 shadow-[var(--shadow-soft)] md:p-10">
+            <form onSubmit={onSubmit} noValidate className="surface relative space-y-8 p-6 shadow-[var(--shadow-soft)] md:p-10">
+              {/* honeypot: off-screen, not focusable, ignored by assistive tech */}
+              <input
+                type="text"
+                name="contact_url_2"
+                value={decoy}
+                onChange={(e) => setDecoy(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="pointer-events-none absolute -left-[9999px] top-0 h-0 w-0 opacity-0"
+              />
               <div className="grid gap-6 sm:grid-cols-2">
                 <Field label="Your name" htmlFor="rq-name" error={errors.name}>
                   <input id="rq-name" className={`${inputCls} h-12`} value={values.name} onChange={(e) => set('name', e.target.value)} placeholder="Alex Rivera" autoComplete="name" aria-invalid={!!errors.name} />

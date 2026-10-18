@@ -17,10 +17,39 @@ const preloadFonts = (): Plugin => ({
   },
 })
 
+/**
+ * Content-Security-Policy for the production build (GitHub Pages can't send headers, so it is a <meta> tag).
+ * Scripts only from this origin (+ WebAssembly for the meshopt decoder), no plugins, no <base> hijacking, and the page can only
+ * talk to itself and the three form services the request form supports, so an injected script couldn't ship data elsewhere.
+ * Not applied in dev: Vite's HMR needs inline scripts and a websocket.
+ */
+const contentSecurityPolicy = (): Plugin => ({
+  name: 'content-security-policy',
+  apply: 'build',
+  transformIndexHtml() {
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'wasm-unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "font-src 'self' data:",
+      "connect-src 'self' blob: data: https://api.web3forms.com https://formspree.io https://api.emailjs.com",
+      "worker-src 'self' blob:",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; ')
+    return [
+      { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: csp }, injectTo: 'head-prepend' },
+      { tag: 'meta', attrs: { name: 'referrer', content: 'strict-origin-when-cross-origin' }, injectTo: 'head-prepend' },
+    ]
+  },
+})
+
 export default defineConfig({
   // GitHub Pages serves this as a project page under /keyur-3d-studio/.
   base: process.env.GITHUB_ACTIONS ? '/keyur-3d-studio/' : '/',
-  plugins: [react(), tailwindcss(), preloadFonts()],
+  plugins: [react(), tailwindcss(), preloadFonts(), contentSecurityPolicy()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

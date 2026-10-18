@@ -15,11 +15,53 @@ export interface AssetRequest {
 export type SubmitResult =
   | { status: 'sent'; provider: Provider }
   | { status: 'mailto'; reason: 'not-configured' | 'provider-failed'; error?: string }
+  | { status: 'cooldown'; waitSeconds: number }
 
 type Provider = 'web3forms' | 'formspree' | 'emailjs'
 
 const env = import.meta.env
 const TARGET_EMAIL = profile.email
+
+// -- abuse hardening --------------------------------------------------------------------
+// The form key is public in any client-side form (it ships in the page), so the real limits are server-side in the Web3Forms
+// dashboard. These client-side guards stop accidents, naive bots and header/format injection before a request leaves the page.
+const MAX = { name: 80, email: 120, requestType: 80, style: 80, platform: 80, referenceLink: 300, brief: 3000, budget: 80, timeline: 80 } as const
+const COOLDOWN_MS = 60_000
+const COOLDOWN_KEY = 'keyur:last-request'
+const oneLine = (v: string, max: number) => v.replace(/[\u0000-\u001f\u007f\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max)
+const multiLine = (v: string, max: number) =>
+  v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').replace(/\r\n?/g, '\n').trim().slice(0, max)
+
+export function sanitizeRequest(req: AssetRequest): AssetRequest {
+  return {
+    name: oneLine(req.name, MAX.name),
+    email: oneLine(req.email, MAX.email),
+    requestType: oneLine(req.requestType, MAX.requestType),
+    style: oneLine(req.style, MAX.style),
+    platform: oneLine(req.platform, MAX.platform),
+    referenceLink: oneLine(req.referenceLink, MAX.referenceLink),
+    brief: multiLine(req.brief, MAX.brief),
+    budget: oneLine(req.budget, MAX.budget),
+    timeline: oneLine(req.timeline, MAX.timeline),
+  }
+}
+
+function cooldownRemaining() {
+  try {
+    const last = Number(localStorage.getItem(COOLDOWN_KEY) || 0)
+    return Math.max(0, COOLDOWN_MS - (Date.now() - last))
+  } catch {
+    return 0
+  }
+}
+
+function markSent() {
+  try {
+    localStorage.setItem(COOLDOWN_KEY, String(Date.now()))
+  } catch {
+    /* private mode: no cooldown, the server-side limits still apply */
+  }
+}
 
 export function buildSubject(req: AssetRequest) {
   return `[3D Request] ${req.requestType} — ${req.name}`
@@ -69,21 +111,37 @@ export function isEmailServiceConfigured() {
 }
 
 async function postJSON(url: string, payload: unknown) {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`${res.status} ${res.statusText} ${text}`.trim())
+  const ctrl = new AbortController()
+  const timer = window.setTimeout(() => ctrl.abort(), 15_000)
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+      signal: ctrl.signal,
+      referrerPolicy: 'strict-origin-when-cross-origin',
+      credentials: 'omit',
+    })
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      throw new Error(`${res.status} ${res.statusText} ${text}`.trim())
+    }
+    return res
+  } finally {
+    window.clearTimeout(timer)
   }
+}
+
+/** Web3Forms / Formspree report some rejections as HTTP 200 with `success: false`: treat those as failures too. */
+async function assertAccepted(res: Response) {
+  const body = (await res.clone().json().catch(() => null)) as { success?: boolean; ok?: boolean; message?: string } | null
+  if (body && (body.success === false || body.ok === false)) throw new Error(body.message || 'rejected by the form service')
   return res
 }
 
 const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
-  web3forms: (req) =>
-    postJSON('https://api.web3forms.com/submit', {
+  web3forms: async (req) =>
+    assertAccepted(await postJSON('https://api.web3forms.com/submit', {
       access_key: env.VITE_WEB3FORMS_ACCESS_KEY,
       subject: buildSubject(req),
       from_name: req.name,
@@ -96,14 +154,17 @@ const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
       timeline: req.timeline,
       reference: req.referenceLink,
       message: buildBody(req),
-    }),
-  formspree: (req) =>
-    postJSON(`https://formspree.io/f/${env.VITE_FORMSPREE_FORM_ID}`, {
-      _subject: buildSubject(req),
-      _replyto: req.email,
-      ...req,
-      message: buildBody(req),
-    }),
+      botcheck: '',
+    })),
+  formspree: async (req) =>
+    assertAccepted(
+      await postJSON(`https://formspree.io/f/${env.VITE_FORMSPREE_FORM_ID}`, {
+        _subject: buildSubject(req),
+        _replyto: req.email,
+        ...req,
+        message: buildBody(req),
+      }),
+    ),
   emailjs: (req) =>
     postJSON('https://api.emailjs.com/api/v1.0/email/send', {
       service_id: env.VITE_EMAILJS_SERVICE_ID,
@@ -124,12 +185,19 @@ const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
  * Dual-action submit:
  *  1. If an email service is configured via env vars, send through it.
  *  2. Otherwise (or if the service fails) open a pre-filled mailto: link.
+ * `honeypot` is the value of the hidden decoy field: real visitors never fill it, so a non-empty value is dropped silently
+ * (the bot is told it worked). A 60 s per-browser cooldown stops accidental double sends and trivial scripted floods.
  */
-export async function submitAssetRequest(req: AssetRequest): Promise<SubmitResult> {
+export async function submitAssetRequest(input: AssetRequest, honeypot = ''): Promise<SubmitResult> {
   const provider = configuredProvider()
+  if (honeypot.trim()) return { status: 'sent', provider: provider ?? 'web3forms' }
+  const wait = cooldownRemaining()
+  if (wait > 0) return { status: 'cooldown', waitSeconds: Math.ceil(wait / 1000) }
+  const req = sanitizeRequest(input)
   if (provider) {
     try {
       await senders[provider](req)
+      markSent()
       return { status: 'sent', provider }
     } catch (err) {
       openMailto(req)
