@@ -27,6 +27,9 @@ export interface CharCommand {
 
 interface PortfolioState {
   activeAsset: Project | null
+  /** True once the open project's 3D model is on screen (the inspector shows the project's render until then). */
+  viewerReady: boolean
+  setViewerReady: (ready: boolean) => void
   charCmd: CharCommand | null
   sendCharCmd: (cmd: CharCommand['cmd'], arg?: string) => void
   viewer: ViewerSettings
@@ -47,11 +50,13 @@ let toastId = 0
 
 export const useStore = create<PortfolioState>((set) => ({
   activeAsset: null,
+  viewerReady: false,
+  setViewerReady: (viewerReady) => set({ viewerReady }),
   charCmd: null,
   sendCharCmd: (cmd, arg) => set((s) => ({ charCmd: { n: (s.charCmd?.n ?? 0) + 1, cmd, arg } })),
   viewer: defaultViewer,
   toasts: [],
-  openAsset: (activeAsset) => set({ activeAsset, viewer: { ...defaultViewer } }),
+  openAsset: (activeAsset) => set({ activeAsset, viewerReady: false, viewer: { ...defaultViewer } }),
   closeAsset: () => set({ activeAsset: null }),
   toggleWireframe: () => set((s) => ({ viewer: { ...s.viewer, wireframe: !s.viewer.wireframe } })),
   toggleAutoRotate: () => set((s) => ({ viewer: { ...s.viewer, autoRotate: !s.viewer.autoRotate } })),

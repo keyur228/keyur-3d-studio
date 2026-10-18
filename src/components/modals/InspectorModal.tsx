@@ -1,15 +1,15 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useProgress } from '@react-three/drei'
-import { Box, ChevronLeft, ChevronRight, Crosshair, Grid3x3, Images, Moon, Palette, Play, RotateCw, Sun, Sunset, X, type LucideIcon } from 'lucide-react'
+import { Box, ChevronLeft, ChevronRight, Crosshair, Grid3x3, Images, Moon, Palette, RotateCw, Sun, Sunset, X, type LucideIcon } from 'lucide-react'
 import { useStore, type LightingPreset } from '@/store/useStore'
-import { lightingPresets } from '@/components/three/LightingRig'
+import { lightingPresets } from '@/components/three/lightingPresets'
 import { scrollToTarget } from '@/lib/scroll'
 import { has3D } from '@/lib/project'
 import { CharacterPanel } from './CharacterPanel'
 
 // Code-split: the inspector only downloads when an asset is opened.
 const InspectorCanvas = lazy(() => import('@/components/three/InspectorCanvas'))
+const LoadProgress = lazy(() => import('@/components/three/LoadProgress'))
 
 const presetIcons: Record<LightingPreset, LucideIcon> = { studio: Sun, sunset: Sunset, cyberpunk: Moon, clay: Palette }
 const presetOrder: LightingPreset[] = ['studio', 'sunset', 'cyberpunk', 'clay']
@@ -27,16 +27,6 @@ function ToolButton({ active, onClick, icon: Icon, label, hotkey }: { active?: b
       <Icon className="h-4 w-4" />
       <span className="hidden md:inline">{label}</span>
     </button>
-  )
-}
-
-function LoadProgress({ size }: { size?: string }) {
-  const { active, progress } = useProgress()
-  if (!active) return null
-  return (
-    <span>
-      Loading model{size ? ` (${size})` : ''} · {progress.toFixed(0)}%
-    </span>
   )
 }
 
@@ -93,16 +83,7 @@ function RendersView({ renders, index, onIndex }: { renders: { src: string; capt
   )
 }
 
-type View = 'video' | 'live' | 'renders'
-
-/** The full film, shown over the viewport when "Film" is selected. */
-function FilmView({ src, poster, title }: { src: string; poster?: string; title: string }) {
-  return (
-    <div className="absolute inset-0 z-[5] grid place-items-center bg-[#0b0a12]">
-      <video src={src} poster={poster} controls autoPlay playsInline preload="auto" aria-label={`${title}, film`} className="max-h-full w-full object-contain" />
-    </div>
-  )
-}
+type View = 'live' | 'renders'
 
 function CanvasFallback() {
   return (
@@ -119,19 +100,20 @@ export function InspectorModal() {
   const asset = useStore((s) => s.activeAsset)
   const close = useStore((s) => s.closeAsset)
   const viewer = useStore((s) => s.viewer)
+  const viewerReady = useStore((s) => s.viewerReady)
   const toggleWireframe = useStore((s) => s.toggleWireframe)
   const toggleAutoRotate = useStore((s) => s.toggleAutoRotate)
   const setLighting = useStore((s) => s.setLighting)
   const resetCamera = useStore((s) => s.resetCamera)
   const renders = asset?.renders ?? []
   const show3D = asset ? has3D(asset) : false
-  const views: View[] = asset ? [...(asset.video ? ['video' as const] : []), ...(show3D ? ['live' as const] : []), ...(renders.length ? ['renders' as const] : [])] : []
+  const views: View[] = asset ? [...(show3D ? ['live' as const] : []), ...(renders.length ? ['renders' as const] : [])] : []
   const [view, setView] = useState<View>('live')
   const [renderIndex, setRenderIndex] = useState(0)
 
-  // a film opens on its video; everything else on its live 3D preview
+  // a project opens on its live 3D preview
   useEffect(() => {
-    setView(asset?.video ? 'video' : asset && has3D(asset) ? 'live' : 'renders')
+    setView(asset && has3D(asset) ? 'live' : 'renders')
     setRenderIndex(0)
   }, [asset])
 
@@ -190,25 +172,36 @@ export function InspectorModal() {
                 </Suspense>
               )}
 
+              {/* the project's render fills the viewport while the model streams in, then fades out */}
+              {show3D && view === 'live' && (
+                <img
+                  src={asset.thumbnailUrl}
+                  alt=""
+                  aria-hidden
+                  decoding="async"
+                  className={`pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover blur-[2px] transition-opacity duration-700 ${viewerReady ? 'opacity-0' : 'opacity-100'}`}
+                />
+              )}
               {view === 'live' && (
                 <div className={`pointer-events-none absolute left-4 top-4 flex flex-col gap-0.5 font-mono text-[11px] ${dark ? 'text-white/70' : 'text-ink-2'}`}>
                   <span>
                     {viewer.wireframe ? 'Wireframe' : lightingPresets[viewer.lighting].label}
                     {asset.polyCount && ` · ${asset.polyCount}`}
                   </span>
-                  <LoadProgress size={asset.previewSize} />
+                  <Suspense fallback={null}>
+                    <LoadProgress size={asset.previewSize} />
+                  </Suspense>
                 </div>
               )}
 
               {view === 'live' && asset.interactive && <CharacterPanel dark={dark} />}
 
-              {asset.video && view === 'video' && <FilmView src={asset.video.src} poster={asset.video.poster} title={asset.title} />}
               {renders.length > 0 && view === 'renders' && <RendersView renders={renders} index={renderIndex} onIndex={setRenderIndex} />}
 
               {views.length > 1 && (
                 <div className="absolute left-4 top-[3.75rem] z-10 flex rounded-full md:left-1/2 md:top-4 md:-translate-x-1/2 border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)] backdrop-blur" role="tablist" aria-label="Preview mode">
                   {views.map((v) => {
-                    const [Icon, label] = v === 'video' ? [Play, 'Film'] : v === 'live' ? [Box, 'Live 3D'] : [Images, asset.video ? 'Stills' : 'Renders']
+                    const [Icon, label] = v === 'live' ? [Box, 'Live 3D'] : [Images, 'Renders']
                     return (
                     <button
                       key={v}
@@ -278,8 +271,6 @@ export function InspectorModal() {
               <dl className="mt-8 divide-y divide-line border-y border-line">
                 {(
                   [
-                    ['Duration', asset.video?.duration],
-                    ['Format', asset.video?.format],
                     ['Polycount', asset.polyCount],
                     ['Textures', asset.textures],
                     ['Topology', asset.topology],

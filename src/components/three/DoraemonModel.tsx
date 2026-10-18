@@ -394,6 +394,11 @@ export function DoraemonModel({ url, wireframe, clay }: { url: string; wireframe
     document.body.style.cursor = pickHit(e) ? 'pointer' : ''
   }
 
+  const setReady = useStore((s) => s.setViewerReady)
+  useEffect(() => {
+    setReady(true)
+  }, [setReady])
+
   return (
     <group ref={root} position={[0, FLOOR_Y, 0]} scale={SCALE}>
       <primitive object={model.scene} onPointerDown={onDown} onPointerMove={onMove} onPointerOut={() => (document.body.style.cursor = '')} />

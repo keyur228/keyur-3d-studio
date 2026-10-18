@@ -12,6 +12,7 @@ import { RequestForm } from '@/components/sections/RequestForm'
 import { Footer } from '@/components/sections/Footer'
 import { InspectorModal } from '@/components/modals/InspectorModal'
 import { Toaster } from '@/components/ui/Toaster'
+import { warmViewerWhenIdle } from '@/lib/prefetch'
 
 export default function App() {
   const modalOpen = useModalOpen()
@@ -20,6 +21,11 @@ export default function App() {
     initSmoothScroll()
     // fonts change line heights; re-measure scroll triggers once they're in
     document.fonts?.ready.then(() => ScrollTrigger.refresh())
+  }, [])
+
+  useEffect(() => {
+    if (document.readyState === 'complete') warmViewerWhenIdle()
+    else window.addEventListener('load', warmViewerWhenIdle, { once: true })
   }, [])
 
   useEffect(() => {

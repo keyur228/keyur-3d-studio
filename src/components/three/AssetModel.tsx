@@ -1,4 +1,4 @@
-import { Component, Suspense, use, useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react'
+import { Component, Suspense, useEffect, useLayoutEffect, useMemo, type ReactNode } from 'react'
 import { useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -6,6 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import type { Project } from '@/data/portfolioData'
 import { ProceduralModel } from './ProceduralModels'
 import { MorphLoader } from './MorphLoader'
+import { useStore } from '@/store/useStore'
 import { DoraemonModel } from './DoraemonModel'
 
 interface ViewProps {
@@ -14,23 +15,14 @@ interface ViewProps {
   wireColor: string
 }
 
-// ── Model availability check ────────────────────────────────────────────────
-// Avoids a noisy loader error when a .glb hasn't been added yet. A missing
-// file on most static hosts returns 404 or an HTML fallback page.
-const availability = new Map<string, Promise<boolean>>()
-
-function checkModel(url: string) {
-  if (!availability.has(url)) {
-    availability.set(
-      url,
-      fetch(url, { method: 'HEAD' })
-        .then((res) => res.ok && !(res.headers.get('content-type') ?? '').includes('text/html'))
-        .catch(() => false),
-    )
-  }
-  return availability.get(url)!
+/** Tells the inspector the model is on screen (it then fades out the project's render shown while loading). */
+function Ready() {
+  const setReady = useStore((st) => st.setViewerReady)
+  useEffect(() => {
+    setReady(true)
+  }, [setReady])
+  return null
 }
-
 
 // ── Error boundary (corrupt / unsupported files fall back to procedural) ───
 class ModelErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -135,14 +127,24 @@ function GLBModel({ url, wireframe, clay }: { url: string } & Omit<ViewProps, 'w
     [gltf, originals, clayMaterial, url],
   )
 
-  return <primitive object={root} />
+  return (
+    <>
+      <primitive object={root} />
+      <Ready />
+    </>
+  )
 }
 
 /**
  * Renders an asset's .glb when present, otherwise its procedural fallback.
  */
 export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: Project } & ViewProps) {
-  const fallback = <ProceduralModel id={asset.fallbackModel ?? 'hyperKnot'} wireframe={wireframe} clay={clay} wireColor={wireColor} />
+  const fallback = (
+    <>
+      <ProceduralModel id={asset.fallbackModel ?? 'hyperKnot'} wireframe={wireframe} clay={clay} wireColor={wireColor} />
+      <Ready />
+    </>
+  )
   if (!asset.modelUrl) return fallback
 
   // The availability check and the download both suspend under one boundary,
@@ -156,8 +158,7 @@ export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: Proje
   )
 }
 
-function CheckedGLB({ url, fallback, interactive, ...view }: { url: string; fallback: ReactNode; interactive?: Project['interactive'] } & Omit<ViewProps, 'wireColor'>) {
-  const available = use(checkModel(url))
-  if (!available) return fallback
+function CheckedGLB({ url, interactive, ...view }: { url: string; fallback?: ReactNode; interactive?: Project['interactive'] } & Omit<ViewProps, 'wireColor'>) {
+  // no HEAD pre-flight: a missing or corrupt file throws inside the loader and the error boundary shows the fallback
   return interactive === 'doraemon' ? <DoraemonModel url={url} {...view} /> : <GLBModel url={url} {...view} />
 }

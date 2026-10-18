@@ -13,6 +13,9 @@
 
 import { asset } from '@/lib/asset'
 
+/** Bump when a model in /public/models changes: the service worker caches models by URL, so this busts it. */
+const MODEL_V = '20261018'
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type AssetCategory = 'Props' | 'Environments' | 'Sci-Fi' | 'Stylized' | 'Shaders' | 'Animation'
@@ -39,15 +42,6 @@ export interface Project {
   modelUrl?: string
   /** Procedural model shown if `modelUrl` is missing or fails to load. */
   fallbackModel?: ProceduralModelId
-  /** A rendered film. A project with a video opens on its Film view. */
-  video?: {
-    src: string
-    /** Small muted clip that plays when the card is hovered. */
-    preview?: string
-    poster?: string
-    duration: string
-    format: string
-  }
   polyCount?: string
   textures?: string
   topology?: string
@@ -56,7 +50,7 @@ export interface Project {
   /** Accent color used for glows/badges on this card. */
   accent: string
   year: number
-  /** Rendered stills, shown in the preview's "Renders" tab ("Stills" for films). */
+  /** Rendered stills, shown in the preview's "Renders" tab. */
   renders?: { src: string; caption: string }[]
   /** Short technical highlights listed in the inspector. */
   highlights?: string[]
@@ -118,42 +112,6 @@ export const profile = {
 
 export const projects: Project[] = [
   {
-    id: 'aethelgard',
-    title: 'The Awakening of Aethelgard',
-    subtitle: 'Procedural 3D short film',
-    description:
-      'A 22-second cinematic of a floating lantern village waking under the stars, built entirely in code with ' +
-      'Remotion, React Three Fiber and Three.js. There are no external models or textures: every island, cottage, ' +
-      'rune, crystal and shader is generated, and the four-act camera move is a pure function of the frame.',
-    categories: ['Animation', 'Environments'],
-    thumbnailUrl: asset('/projects/aethelgard/poster.jpg'),
-    video: {
-      src: asset('/projects/aethelgard/film-1080.mp4'),
-      preview: asset('/projects/aethelgard/preview-640.mp4'),
-      poster: asset('/projects/aethelgard/poster.jpg'),
-      duration: '22 s',
-      format: '1920 × 1080 · 30 fps',
-    },
-    software: ['Remotion', 'React Three Fiber', 'Three.js', 'GLSL'],
-    tags: ['Procedural', 'Cinematic', 'Real-time'],
-    accent: '#3f7d8c',
-    year: 2026,
-    renders: [
-      { src: asset('/projects/aethelgard/still-act1.jpg'), caption: 'I · The Shrouded Veil: the rune gate in the mist' },
-      { src: asset('/projects/aethelgard/poster.jpg'), caption: 'II · The Lantern Sanctum: the village wakes' },
-      { src: asset('/projects/aethelgard/still-act3.jpg'), caption: 'III · The Astral Conduit: the obelisk ignites' },
-      { src: asset('/projects/aethelgard/still-act4.jpg'), caption: 'IV · The Eternal Ascent: the beam rises' },
-    ],
-    highlights: [
-      '22-second film at 1080p and 30 fps, every frame rendered from code',
-      'No external assets: islands, cottages, runes, crystals and shaders are all procedural',
-      'Four-act camera rig as a pure function of the frame, so every render is identical',
-      'Custom GLSL for the nebula sky, reflective water and the arcane obelisk',
-      'Bloom and ACES tone mapping through a hand-built post-processing pass',
-      'Instanced lanterns, runes, mist and embers',
-    ],
-  },
-  {
     id: 'fruit-crate',
     title: 'Market Fruit Crate',
     subtitle: 'Interactive, physics-ready game asset',
@@ -164,7 +122,7 @@ export const projects: Project[] = [
       'for grabbing, inspecting and snap-back.',
     categories: ['Props', 'Environments'],
     thumbnailUrl: asset('/projects/fruit-crate/thumb.webp'),
-    modelUrl: asset('/models/fruit-crate.glb'),
+    modelUrl: asset('/models/fruit-crate.glb') + `?v=${MODEL_V}`,
     fallbackModel: 'sciFiCrate',
     polyCount: '54.6k Tris',
     textures: '4K PBR + SSS',
@@ -200,7 +158,7 @@ export const projects: Project[] = [
       'and the clutter is grabbable with physics metadata — with navmesh, colliders and baked lightmaps ready for an engine.',
     categories: ['Environments', 'Props'],
     thumbnailUrl: asset('/projects/cozy-house/thumb.webp'),
-    modelUrl: asset('/models/cozy-house.glb'),
+    modelUrl: asset('/models/cozy-house.glb') + `?v=${MODEL_V}`,
     fallbackModel: 'monolithShrine',
     polyCount: '345k Tris',
     textures: '2K PBR + 4K lightmaps',
@@ -240,7 +198,7 @@ export const projects: Project[] = [
       'NLA clips — all in one glTF with the interaction spec embedded.',
     categories: ['Props', 'Stylized', 'Animation'],
     thumbnailUrl: asset('/projects/doraemon/thumb.webp'),
-    modelUrl: asset('/models/doraemon.glb'),
+    modelUrl: asset('/models/doraemon.glb') + `?v=${MODEL_V}`,
     fallbackModel: 'liquidOrb',
     interactive: 'doraemon',
     polyCount: '101k Tris + gadgets',

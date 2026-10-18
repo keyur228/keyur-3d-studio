@@ -1,20 +1,13 @@
 import { Environment, Lightformer } from '@react-three/drei'
 import type { LightingPreset } from '@/store/useStore'
+import { lightingPresets } from './lightingPresets'
+
+export { lightingPresets }
 
 /**
  * HDRI-style lighting built from drei Lightformers — no external HDR files,
  * so every preset works offline and loads instantly.
  */
-export const lightingPresets: Record<
-  LightingPreset,
-  { label: string; background: string; key: string; rim: string; fill: string; ambient: number; floor: string; dark: boolean }
-> = {
-  studio: { label: 'Studio', background: '#ece5d9', key: '#fff8ee', rim: '#f3d2b4', fill: '#ffffff', ambient: 0.55, floor: '#d3c8b7', dark: false },
-  sunset: { label: 'Sunset', background: '#1a0f14', key: '#ffb36b', rim: '#ff5e7e', fill: '#7c3aed', ambient: 0.3, floor: '#3a1e26', dark: true },
-  cyberpunk: { label: 'Night', background: '#07060f', key: '#22d3ee', rim: '#e879f9', fill: '#6366f1', ambient: 0.2, floor: '#24133d', dark: true },
-  clay: { label: 'Clay', background: '#e6e2dc', key: '#ffffff', rim: '#ffffff', fill: '#e4e0da', ambient: 0.6, floor: '#cfc9c0', dark: false },
-}
-
 export function LightingRig({ preset }: { preset: LightingPreset }) {
   const p = lightingPresets[preset]
   return (
