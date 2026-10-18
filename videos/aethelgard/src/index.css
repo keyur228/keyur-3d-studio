@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --color-obsidian: #070913;
+  --color-indigo-twilight: #161b33;
+  --color-rune: #00f5d4;
+  --color-ember: #ffb703;
+  --color-arcane: #9b5de5;
+  --font-cinematic: "Cormorant Garamond", "Cormorant", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
