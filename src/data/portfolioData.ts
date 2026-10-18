@@ -227,7 +227,7 @@ export const projects: Project[] = [
       'IK/FK arms and legs, soft IK, auto volume-preserving squash and stretch',
       'Spring bones on bell, pellet, 6 whiskers, tail and belly — baked into every clip',
       'Take-copter and Dorayaki with their own rigs and sockets',
-      '96/96 automated checks passing',
+      '95/95 automated checks passing',
     ],
   },
 ]
