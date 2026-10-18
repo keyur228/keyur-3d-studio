@@ -14,7 +14,7 @@
 import { asset } from '@/lib/asset'
 
 /** Bump when a model in /public/models changes: the service worker caches models by URL, so this busts it. */
-const MODEL_V = '20261018'
+const MODEL_V = '20261019'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -192,8 +192,8 @@ export const projects: Project[] = [
     subtitle: 'Rigged, clickable stylized CGI character bundle',
     description:
       'A tactile, vinyl-soft take on the blue robot cat, built to be played with rather than posed. Click his head, belly, ' +
-      'pocket or red tail; his eyes follow your cursor. The pocket opens onto a stencil portal so a Take-copter, a dorayaki ' +
-      'and the Anywhere Door can be pulled out of "infinite" space without clipping through his body. 53 ARKit-plus-anime shape ' +
+      'pocket or red tail; his eyes follow your cursor. The pocket opens onto a stencil portal so a Take-copter and a dorayaki ' +
+      'can be pulled out of "infinite" space without clipping through his body. 53 ARKit-plus-anime shape ' +
       'keys, IK/FK limbs with volume-preserving squash and stretch, spring bones for the bell, whiskers and tail, and six baked ' +
       'NLA clips — all in one glTF with the interaction spec embedded.',
     categories: ['Props', 'Stylized', 'Animation'],
@@ -214,7 +214,6 @@ export const projects: Project[] = [
       { src: asset('/projects/doraemon/face.webp'), caption: 'Face — curved oval eyes, sliding pupils, drawn smile and philtrum' },
       { src: asset('/projects/doraemon/expressions.webp'), caption: 'Expression library — laugh, pout, shock, heart eyes, dizzy, worried' },
       { src: asset('/projects/doraemon/pocket_open.webp'), caption: 'The 4D pocket opening, belly bulging as the hand rummages inside' },
-      { src: asset('/projects/doraemon/gadgets_door.webp'), caption: 'Anywhere Door pulled out of the pocket, portal shader glowing' },
       { src: asset('/projects/doraemon/eat.webp'), caption: 'Eating a dorayaki — three-layer bite shape keys' },
       { src: asset('/projects/doraemon/hover.webp'), caption: 'Take-copter hover with the motion-blur disc swap' },
       { src: asset('/projects/doraemon/clips.webp'), caption: 'Six baked NLA clips' },
@@ -227,7 +226,7 @@ export const projects: Project[] = [
       '53 shape keys: ARKit subset + anime library, driven by a bone slider panel',
       'IK/FK arms and legs, soft IK, auto volume-preserving squash and stretch',
       'Spring bones on bell, pellet, 6 whiskers, tail and belly — baked into every clip',
-      'Take-copter, Anywhere Door and Dorayaki with their own rigs and sockets',
+      'Take-copter and Dorayaki with their own rigs and sockets',
       '96/96 automated checks passing',
     ],
   },

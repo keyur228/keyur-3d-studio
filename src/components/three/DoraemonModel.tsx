@@ -19,7 +19,7 @@ const HEIGHT = 1.293
 const SCALE = 2.3 / HEIGHT
 const FLOOR_Y = -1.45
 const FADE = 0.28
-const GADGETS = ['Takecopter', 'Dorayaki', 'Anywhere_Door'] as const
+const GADGETS = ['Takecopter', 'Dorayaki'] as const
 type Gadget = (typeof GADGETS)[number]
 
 /** Morph weights per expression chip (names are the shape keys of the Blender bundle). */
@@ -95,7 +95,6 @@ export function DoraemonModel({ url, wireframe, clay }: { url: string; wireframe
     const props: Record<Gadget, THREE.Object3D | null> = {
       Takecopter: names('RIG_Prop_Takecopter'),
       Dorayaki: names('RIG_Prop_Dorayaki'),
-      Anywhere_Door: names('RIG_Prop_Anywhere_Door'),
     }
     const propRest = new Map<THREE.Object3D, { p: THREE.Vector3; q: THREE.Quaternion; s: THREE.Vector3 }>()
     Object.values(props).forEach((o) => o && propRest.set(o, { p: o.position.clone(), q: o.quaternion.clone(), s: o.scale.clone() }))
