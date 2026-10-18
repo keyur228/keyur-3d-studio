@@ -84,21 +84,7 @@ export const profile = {
   intro:
     'I model, texture and animate 3D assets in Blender for games, the web and product visuals — ' +
     'from a single hero prop to complete modular packs.',
-  /** Optional portrait for the About section (e.g. '/portrait.jpg'). A monogram is shown when empty. */
-  portraitUrl: '',
   responseTime: 'Replies within 24–48 hours',
-  bio:
-    'I build high-fidelity 3D models, stylized and realistic shaders, game-ready assets and ' +
-    'cinematic motion in Blender. From a single hero prop to a complete modular asset pack, ' +
-    'every piece ships with clean topology, efficient UVs and PBR textures that drop straight ' +
-    'into your engine, renderer or WebGL scene.',
-  badges: ['Blender 3D', 'PBR Workflows', 'Game-Ready Topology', 'Custom Asset Packs', 'Cycles & Eevee', 'GLB for Web'],
-  stats: [
-    { value: 120, suffix: '+', label: 'Assets modeled' },
-    { value: 8, suffix: '', label: 'Asset packs released' },
-    { value: 4, suffix: 'K', label: 'Max texture resolution' },
-    { value: 100, suffix: '%', label: 'Quad-based topology' },
-  ],
   /** Social links — set `url` to your profile; entries with an empty url are hidden. */
   socials: [
     { label: 'ArtStation', url: 'https://www.artstation.com/' },

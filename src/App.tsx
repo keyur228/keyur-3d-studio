@@ -7,7 +7,6 @@ import { Hero } from '@/components/sections/Hero'
 import { Projects } from '@/components/sections/Projects'
 import { Process } from '@/components/sections/Process'
 import { Skills } from '@/components/sections/Skills'
-import { About } from '@/components/sections/About'
 import { RequestForm } from '@/components/sections/RequestForm'
 import { Footer } from '@/components/sections/Footer'
 import { InspectorModal } from '@/components/modals/InspectorModal'
@@ -43,7 +42,6 @@ export default function App() {
         <Projects />
         <Process />
         <Skills />
-        <About />
         <RequestForm />
       </main>
       <Footer />

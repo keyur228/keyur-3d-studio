@@ -27,13 +27,13 @@ Almost everything lives in **`src/data/portfolioData.ts`**:
 
 | Export | What it controls |
 | --- | --- |
-| `profile` | Name, roles, bio, email, availability, stats, badges, social links |
+| `profile` | Name, roles, email, availability, social links |
 | `projects` | The **Projects** section. Each card opens the live 3D preview |
 | `skillGroups`, `toolchain` | The Blender-style node graph |
 | `processSteps` | The process steps |
 | `requestOptions` | Dropdowns and pills in the request form |
 
-> The stats (`120+ Assets Modeled` and so on) and social links are sample values. Replace them with your real numbers and profile URLs.
+> The social links are sample values. Replace them with your real profile URLs.
 
 ### Adding a project
 
@@ -129,7 +129,7 @@ src/
 │   │   └── morphShapes.ts         ← the loader's six objects, sampled to point clouds
 │   ├── modals/                    ← InspectorModal: live 3D preview + renders
 │   ├── showcase/                  ← ProjectCard
-│   ├── sections/                  ← Navbar, Hero, Projects, Process, Skills, About, RequestForm, Footer
+│   ├── sections/                  ← Navbar, Hero, Projects, Process, Skills, RequestForm, Footer
 │   └── ui/                        ← Reveal (the single fade-up animation), SectionHeading, Toaster
 └── index.css                      ← design tokens, type, buttons, layout helpers
 ```

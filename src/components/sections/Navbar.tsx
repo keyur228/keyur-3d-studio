@@ -14,7 +14,6 @@ const links: NavLink[] = [
   { label: 'Projects', target: '#projects', id: 'projects' },
   { label: 'Process', target: '#process', id: 'process' },
   { label: 'Skills', target: '#skills', id: 'skills' },
-  { label: 'About', target: '#about', id: 'about' },
 ]
 
 export function Navbar() {
@@ -31,7 +30,7 @@ export function Navbar() {
 
   useEffect(() => {
     const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)), { rootMargin: '-45% 0px -50% 0px' })
-    ;['top', 'projects', 'process', 'skills', 'about', 'request'].forEach((id) => {
+    ;['top', 'projects', 'process', 'skills', 'request'].forEach((id) => {
       const el = document.getElementById(id)
       if (el) io.observe(el)
     })
