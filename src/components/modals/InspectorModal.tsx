@@ -6,6 +6,7 @@ import { useStore, type LightingPreset } from '@/store/useStore'
 import { lightingPresets } from '@/components/three/LightingRig'
 import { scrollToTarget } from '@/lib/scroll'
 import { has3D } from '@/lib/project'
+import { CharacterPanel } from './CharacterPanel'
 
 // Code-split: the inspector only downloads when an asset is opened.
 const InspectorCanvas = lazy(() => import('@/components/three/InspectorCanvas'))
@@ -199,6 +200,8 @@ export function InspectorModal() {
                 </div>
               )}
 
+              {view === 'live' && asset.interactive && <CharacterPanel dark={dark} />}
+
               {asset.video && view === 'video' && <FilmView src={asset.video.src} poster={asset.video.poster} title={asset.title} />}
               {renders.length > 0 && view === 'renders' && <RendersView renders={renders} index={renderIndex} onIndex={setRenderIndex} />}
 
@@ -294,7 +297,7 @@ export function InspectorModal() {
               <button type="button" onClick={requestSimilar} className="btn btn-primary mt-8 w-full justify-center">
                 Request something similar
               </button>
-              <p className="mt-4 text-center text-xs text-muted">{show3D ? 'Drag to orbit · scroll to zoom · Esc to close' : 'Esc to close'}</p>
+              <p className="mt-4 text-center text-xs text-muted">{show3D ? (asset.interactive ? 'Click the character · drag to orbit · scroll to zoom · Esc to close' : 'Drag to orbit · scroll to zoom · Esc to close') : 'Esc to close'}</p>
             </aside>
           </motion.div>
         </motion.div>

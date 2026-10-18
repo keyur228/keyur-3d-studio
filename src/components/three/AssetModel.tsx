@@ -6,6 +6,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import type { Project } from '@/data/portfolioData'
 import { ProceduralModel } from './ProceduralModels'
 import { MorphLoader } from './MorphLoader'
+import { DoraemonModel } from './DoraemonModel'
 
 interface ViewProps {
   wireframe: boolean
@@ -149,13 +150,14 @@ export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: Proje
   return (
     <ModelErrorBoundary fallback={fallback}>
       <Suspense fallback={<MorphLoader />}>
-        <CheckedGLB url={asset.modelUrl} fallback={fallback} wireframe={wireframe} clay={clay} />
+        <CheckedGLB url={asset.modelUrl} fallback={fallback} wireframe={wireframe} clay={clay} interactive={asset.interactive} />
       </Suspense>
     </ModelErrorBoundary>
   )
 }
 
-function CheckedGLB({ url, fallback, ...view }: { url: string; fallback: ReactNode } & Omit<ViewProps, 'wireColor'>) {
+function CheckedGLB({ url, fallback, interactive, ...view }: { url: string; fallback: ReactNode; interactive?: Project['interactive'] } & Omit<ViewProps, 'wireColor'>) {
   const available = use(checkModel(url))
-  return available ? <GLBModel url={url} {...view} /> : fallback
+  if (!available) return fallback
+  return interactive === 'doraemon' ? <DoraemonModel url={url} {...view} /> : <GLBModel url={url} {...view} />
 }

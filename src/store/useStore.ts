@@ -18,8 +18,17 @@ interface ViewerSettings {
   resetToken: number
 }
 
+/** A command for an interactive character in the inspector (see DoraemonModel). */
+export interface CharCommand {
+  n: number
+  cmd: 'clip' | 'expression' | 'look' | 'reset'
+  arg?: string
+}
+
 interface PortfolioState {
   activeAsset: Project | null
+  charCmd: CharCommand | null
+  sendCharCmd: (cmd: CharCommand['cmd'], arg?: string) => void
   viewer: ViewerSettings
   toasts: Toast[]
   openAsset: (asset: Project) => void
@@ -38,6 +47,8 @@ let toastId = 0
 
 export const useStore = create<PortfolioState>((set) => ({
   activeAsset: null,
+  charCmd: null,
+  sendCharCmd: (cmd, arg) => set((s) => ({ charCmd: { n: (s.charCmd?.n ?? 0) + 1, cmd, arg } })),
   viewer: defaultViewer,
   toasts: [],
   openAsset: (activeAsset) => set({ activeAsset, viewer: { ...defaultViewer } }),

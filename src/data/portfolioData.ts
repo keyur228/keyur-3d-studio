@@ -64,6 +64,8 @@ export interface Project {
   previewSize?: string
   /** The first featured project is shown in the hero. */
   featured?: boolean
+  /** The model is a rigged, clickable character (click zones, eye tracking, NLA clips). */
+  interactive?: 'doraemon'
 }
 
 export interface SkillGroup {
@@ -224,6 +226,51 @@ export const projects: Project[] = [
       'Navmesh, 150 UCX colliders and camera POIs',
       'Dual UVs with 4K baked lightmaps',
       '26/26 automated checks passing',
+    ],
+  },
+  {
+    id: 'doraemon',
+    title: 'Doraemon — Interactive 4D Pocket',
+    subtitle: 'Rigged, clickable stylized CGI character bundle',
+    description:
+      'A tactile, vinyl-soft take on the blue robot cat, built to be played with rather than posed. Click his head, belly, ' +
+      'pocket or red tail; his eyes follow your cursor. The pocket opens onto a stencil portal so a Take-copter, a dorayaki ' +
+      'and the Anywhere Door can be pulled out of "infinite" space without clipping through his body. 53 ARKit-plus-anime shape ' +
+      'keys, IK/FK limbs with volume-preserving squash and stretch, spring bones for the bell, whiskers and tail, and six baked ' +
+      'NLA clips — all in one glTF with the interaction spec embedded.',
+    categories: ['Props', 'Stylized', 'Animation'],
+    thumbnailUrl: asset('/projects/doraemon/thumb.webp'),
+    modelUrl: asset('/models/doraemon.glb'),
+    fallbackModel: 'liquidOrb',
+    interactive: 'doraemon',
+    polyCount: '101k Tris + gadgets',
+    textures: '4K skin PBR · 2K gadgets',
+    topology: 'All-quad · 53 shape keys',
+    software: ['Blender', 'Cycles', 'Python'],
+    tags: ['Interactive', 'Rigged', 'glTF / FBX'],
+    accent: '#1e90e6',
+    year: 2026,
+    previewSize: '11 MB',
+    renders: [
+      { src: asset('/projects/doraemon/hero.webp'), caption: 'Hero — soft satin vinyl skin, lacquered nose, brushed brass bell' },
+      { src: asset('/projects/doraemon/face.webp'), caption: 'Face — curved oval eyes, sliding pupils, drawn smile and philtrum' },
+      { src: asset('/projects/doraemon/expressions.webp'), caption: 'Expression library — laugh, pout, shock, heart eyes, dizzy, worried' },
+      { src: asset('/projects/doraemon/pocket_open.webp'), caption: 'The 4D pocket opening, belly bulging as the hand rummages inside' },
+      { src: asset('/projects/doraemon/gadgets_door.webp'), caption: 'Anywhere Door pulled out of the pocket, portal shader glowing' },
+      { src: asset('/projects/doraemon/eat.webp'), caption: 'Eating a dorayaki — three-layer bite shape keys' },
+      { src: asset('/projects/doraemon/hover.webp'), caption: 'Take-copter hover with the motion-blur disc swap' },
+      { src: asset('/projects/doraemon/clips.webp'), caption: 'Six baked NLA clips' },
+      { src: asset('/projects/doraemon/wire_head.webp'), caption: 'Clean all-quad topology — head and mouth rim' },
+    ],
+    highlights: [
+      'Click the head, belly, pocket or tail — hit volumes drive the state machine',
+      'Pupils follow the cursor (CTRL_Eye_LookAt, ±6° limits)',
+      'Pocket stencil portal: gadgets clip against the pouch, never the body',
+      '53 shape keys: ARKit subset + anime library, driven by a bone slider panel',
+      'IK/FK arms and legs, soft IK, auto volume-preserving squash and stretch',
+      'Spring bones on bell, pellet, 6 whiskers, tail and belly — baked into every clip',
+      'Take-copter, Anywhere Door and Dorayaki with their own rigs and sockets',
+      '96/96 automated checks passing',
     ],
   },
 ]
