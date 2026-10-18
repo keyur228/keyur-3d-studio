@@ -6,22 +6,12 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import type { Project } from '@/data/portfolioData'
 import { ProceduralModel } from './ProceduralModels'
 import { MorphLoader } from './MorphLoader'
-import { useStore } from '@/store/useStore'
 import { DoraemonModel } from './DoraemonModel'
 
 interface ViewProps {
   wireframe: boolean
   clay: boolean
   wireColor: string
-}
-
-/** Tells the inspector the model is on screen (it then fades out the project's render shown while loading). */
-function Ready() {
-  const setReady = useStore((st) => st.setViewerReady)
-  useEffect(() => {
-    setReady(true)
-  }, [setReady])
-  return null
 }
 
 // ── Error boundary (corrupt / unsupported files fall back to procedural) ───
@@ -127,24 +117,14 @@ function GLBModel({ url, wireframe, clay }: { url: string } & Omit<ViewProps, 'w
     [gltf, originals, clayMaterial, url],
   )
 
-  return (
-    <>
-      <primitive object={root} />
-      <Ready />
-    </>
-  )
+  return <primitive object={root} />
 }
 
 /**
  * Renders an asset's .glb when present, otherwise its procedural fallback.
  */
 export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: Project } & ViewProps) {
-  const fallback = (
-    <>
-      <ProceduralModel id={asset.fallbackModel ?? 'hyperKnot'} wireframe={wireframe} clay={clay} wireColor={wireColor} />
-      <Ready />
-    </>
-  )
+  const fallback = <ProceduralModel id={asset.fallbackModel ?? 'hyperKnot'} wireframe={wireframe} clay={clay} wireColor={wireColor} />
   if (!asset.modelUrl) return fallback
 
   // The availability check and the download both suspend under one boundary,

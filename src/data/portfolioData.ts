@@ -131,7 +131,6 @@ export const projects: Project[] = [
     tags: ['Physics', 'Game-Ready', 'glTF / FBX'],
     accent: '#b9521a',
     year: 2026,
-    featured: true,
     previewSize: '6 MB',
     renders: [
       { src: asset('/projects/fruit-crate/hero.webp'), caption: 'Hero render — Cycles, studio lighting' },
@@ -201,6 +200,7 @@ export const projects: Project[] = [
     modelUrl: asset('/models/doraemon.glb') + `?v=${MODEL_V}`,
     fallbackModel: 'liquidOrb',
     interactive: 'doraemon',
+    featured: true,
     polyCount: '101k Tris + gadgets',
     textures: '4K skin PBR · 2K gadgets',
     topology: 'All-quad · 53 shape keys',

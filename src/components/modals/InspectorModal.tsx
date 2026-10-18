@@ -100,7 +100,6 @@ export function InspectorModal() {
   const asset = useStore((s) => s.activeAsset)
   const close = useStore((s) => s.closeAsset)
   const viewer = useStore((s) => s.viewer)
-  const viewerReady = useStore((s) => s.viewerReady)
   const toggleWireframe = useStore((s) => s.toggleWireframe)
   const toggleAutoRotate = useStore((s) => s.toggleAutoRotate)
   const setLighting = useStore((s) => s.setLighting)
@@ -172,16 +171,6 @@ export function InspectorModal() {
                 </Suspense>
               )}
 
-              {/* the project's render fills the viewport while the model streams in, then fades out */}
-              {show3D && view === 'live' && (
-                <img
-                  src={asset.thumbnailUrl}
-                  alt=""
-                  aria-hidden
-                  decoding="async"
-                  className={`pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover blur-[2px] transition-opacity duration-700 ${viewerReady ? 'opacity-0' : 'opacity-100'}`}
-                />
-              )}
               {view === 'live' && (
                 <div className={`pointer-events-none absolute left-4 top-4 flex flex-col gap-0.5 font-mono text-[11px] ${dark ? 'text-white/70' : 'text-ink-2'}`}>
                   <span>
