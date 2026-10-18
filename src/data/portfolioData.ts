@@ -15,7 +15,7 @@ import { asset } from '@/lib/asset'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type AssetCategory = 'Props' | 'Environments' | 'Sci-Fi' | 'Stylized' | 'Shaders'
+export type AssetCategory = 'Props' | 'Environments' | 'Sci-Fi' | 'Stylized' | 'Shaders' | 'Animation'
 
 /** Built-in procedural models used when no .glb is available. */
 export type ProceduralModelId =
@@ -35,18 +35,28 @@ export interface Project {
   description: string
   categories: AssetCategory[]
   thumbnailUrl: string
-  /** Path to a .glb/.gltf in /public/models — optional. */
+  /** Path to a .glb/.gltf in /public/models. A project with a model (or a fallback) gets a Live 3D view. */
   modelUrl?: string
-  fallbackModel: ProceduralModelId
-  polyCount: string
-  textures: string
-  topology: string
+  /** Procedural model shown if `modelUrl` is missing or fails to load. */
+  fallbackModel?: ProceduralModelId
+  /** A rendered film. A project with a video opens on its Film view. */
+  video?: {
+    src: string
+    /** Small muted clip that plays when the card is hovered. */
+    preview?: string
+    poster?: string
+    duration: string
+    format: string
+  }
+  polyCount?: string
+  textures?: string
+  topology?: string
   software: string[]
   tags: string[]
   /** Accent color used for glows/badges on this card. */
   accent: string
   year: number
-  /** Full project entries: rendered stills shown in the inspector's "Renders" tab. */
+  /** Rendered stills, shown in the preview's "Renders" tab ("Stills" for films). */
   renders?: { src: string; caption: string }[]
   /** Short technical highlights listed in the inspector. */
   highlights?: string[]
@@ -105,6 +115,42 @@ export const profile = {
 // ── Projects (each opens the live 3D preview) ────────────────────────────────
 
 export const projects: Project[] = [
+  {
+    id: 'aethelgard',
+    title: 'The Awakening of Aethelgard',
+    subtitle: 'Procedural 3D short film',
+    description:
+      'A 22-second cinematic of a floating lantern village waking under the stars, built entirely in code with ' +
+      'Remotion, React Three Fiber and Three.js. There are no external models or textures: every island, cottage, ' +
+      'rune, crystal and shader is generated, and the four-act camera move is a pure function of the frame.',
+    categories: ['Animation', 'Environments'],
+    thumbnailUrl: asset('/projects/aethelgard/poster.jpg'),
+    video: {
+      src: asset('/projects/aethelgard/film-1080.mp4'),
+      preview: asset('/projects/aethelgard/preview-640.mp4'),
+      poster: asset('/projects/aethelgard/poster.jpg'),
+      duration: '22 s',
+      format: '1920 × 1080 · 30 fps',
+    },
+    software: ['Remotion', 'React Three Fiber', 'Three.js', 'GLSL'],
+    tags: ['Procedural', 'Cinematic', 'Real-time'],
+    accent: '#3f7d8c',
+    year: 2026,
+    renders: [
+      { src: asset('/projects/aethelgard/still-act1.jpg'), caption: 'I · The Shrouded Veil: the rune gate in the mist' },
+      { src: asset('/projects/aethelgard/poster.jpg'), caption: 'II · The Lantern Sanctum: the village wakes' },
+      { src: asset('/projects/aethelgard/still-act3.jpg'), caption: 'III · The Astral Conduit: the obelisk ignites' },
+      { src: asset('/projects/aethelgard/still-act4.jpg'), caption: 'IV · The Eternal Ascent: the beam rises' },
+    ],
+    highlights: [
+      '22-second film at 1080p and 30 fps, every frame rendered from code',
+      'No external assets: islands, cottages, runes, crystals and shaders are all procedural',
+      'Four-act camera rig as a pure function of the frame, so every render is identical',
+      'Custom GLSL for the nebula sky, reflective water and the arcane obelisk',
+      'Bloom and ACES tone mapping through a hand-built post-processing pass',
+      'Instanced lanterns, runes, mist and embers',
+    ],
+  },
   {
     id: 'fruit-crate',
     title: 'Market Fruit Crate',

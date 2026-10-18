@@ -2,6 +2,7 @@ import { ArrowDownRight, ArrowUpRight, Box } from 'lucide-react'
 import { projects, profile } from '@/data/portfolioData'
 import { scrollToTarget } from '@/lib/scroll'
 import { useStore } from '@/store/useStore'
+import { projectMeta } from '@/lib/project'
 import { Reveal } from '@/components/ui/Reveal'
 
 const featured = projects.find((a) => a.featured) ?? projects[0]
@@ -54,7 +55,7 @@ export function Hero() {
               <div className="min-w-0">
                 <p className="truncate text-[0.9375rem] font-medium text-ink">Featured project · {featured.title}</p>
                 <p className="font-mono text-xs text-muted">
-                  {featured.polyCount} · {featured.textures}
+                  {projectMeta(featured).join(' · ')}
                 </p>
               </div>
               <button type="button" onClick={() => openAsset(featured)} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-deep">

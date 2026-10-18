@@ -141,7 +141,7 @@ function GLBModel({ url, wireframe, clay }: { url: string } & Omit<ViewProps, 'w
  * Renders an asset's .glb when present, otherwise its procedural fallback.
  */
 export function AssetModel({ asset, wireframe, clay, wireColor }: { asset: Project } & ViewProps) {
-  const fallback = <ProceduralModel id={asset.fallbackModel} wireframe={wireframe} clay={clay} wireColor={wireColor} />
+  const fallback = <ProceduralModel id={asset.fallbackModel ?? 'hyperKnot'} wireframe={wireframe} clay={clay} wireColor={wireColor} />
   if (!asset.modelUrl) return fallback
 
   // The availability check and the download both suspend under one boundary,

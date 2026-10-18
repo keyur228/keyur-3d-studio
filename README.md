@@ -68,10 +68,18 @@ Almost everything lives in **`src/data/portfolioData.ts`**:
 
 What the optional fields do:
 
-- `renders` adds a **Renders** tab next to **Live 3D**.
+- `video: { src, preview, poster, duration, format }` makes the project a film. It opens on a **Film** player, and the card plays the small muted `preview` clip on hover. A film needs no `modelUrl`, and only projects with a model (or a `fallbackModel`) load the 3D viewer. The **Market Fruit Crate** and **The Awakening of Aethelgard** entries show both kinds.
+- `renders` adds a **Renders** tab next to **Live 3D** (it's labelled **Stills** for films).
 - `highlights` adds a bullet list of technical highlights.
 - `previewSize` shows the download size while the model loads.
 - `featured: true` puts the project in the hero; the first featured entry wins.
+
+For web video, encode H.264 with fast-start so playback begins before the download finishes. Remotion ships an ffmpeg you can use:
+
+```bash
+ffmpeg -i film.mp4 -c:v libx264 -preset slow -crf 23 -pix_fmt yuv420p -movflags +faststart -an film-1080.mp4
+ffmpeg -i film.mp4 -c:v libx264 -crf 28 -vf scale=640:-2 -pix_fmt yuv420p -movflags +faststart -an preview-640.mp4
+```
 
 Game-engine exports are fine as-is. Collision hulls (glTF extras with `collision_proxy`, or nodes named `UCX_*`) are stripped before display. The preview scales any model, stands it on the ground plane and aims the camera at its centre. If `modelUrl` is missing or fails to load, it shows the procedural `fallbackModel` instead. The built-in fallbacks are `hyperKnot`, `crystalCluster`, `mechDrone`, `sciFiCrate`, `energyCore`, `lowPolyTree`, `monolithShrine` and `liquidOrb`.
 

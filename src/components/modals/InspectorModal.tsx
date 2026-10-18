@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useProgress } from '@react-three/drei'
-import { Box, ChevronLeft, ChevronRight, Crosshair, Grid3x3, Images, Moon, Palette, RotateCw, Sun, Sunset, X, type LucideIcon } from 'lucide-react'
+import { Box, ChevronLeft, ChevronRight, Crosshair, Grid3x3, Images, Moon, Palette, Play, RotateCw, Sun, Sunset, X, type LucideIcon } from 'lucide-react'
 import { useStore, type LightingPreset } from '@/store/useStore'
 import { lightingPresets } from '@/components/three/LightingRig'
 import { scrollToTarget } from '@/lib/scroll'
+import { has3D } from '@/lib/project'
 
 // Code-split: the inspector only downloads when an asset is opened.
 const InspectorCanvas = lazy(() => import('@/components/three/InspectorCanvas'))
@@ -91,6 +92,17 @@ function RendersView({ renders, index, onIndex }: { renders: { src: string; capt
   )
 }
 
+type View = 'video' | 'live' | 'renders'
+
+/** The full film, shown over the viewport when "Film" is selected. */
+function FilmView({ src, poster, title }: { src: string; poster?: string; title: string }) {
+  return (
+    <div className="absolute inset-0 z-[5] grid place-items-center bg-[#0b0a12]">
+      <video src={src} poster={poster} controls autoPlay playsInline preload="auto" aria-label={`${title}, film`} className="max-h-full w-full object-contain" />
+    </div>
+  )
+}
+
 function CanvasFallback() {
   return (
     <div className="absolute inset-0 grid place-items-center">
@@ -110,15 +122,17 @@ export function InspectorModal() {
   const toggleAutoRotate = useStore((s) => s.toggleAutoRotate)
   const setLighting = useStore((s) => s.setLighting)
   const resetCamera = useStore((s) => s.resetCamera)
-  const [view, setView] = useState<'live' | 'renders'>('live')
-  const [renderIndex, setRenderIndex] = useState(0)
   const renders = asset?.renders ?? []
+  const show3D = asset ? has3D(asset) : false
+  const views: View[] = asset ? [...(asset.video ? ['video' as const] : []), ...(show3D ? ['live' as const] : []), ...(renders.length ? ['renders' as const] : [])] : []
+  const [view, setView] = useState<View>('live')
+  const [renderIndex, setRenderIndex] = useState(0)
 
-  // every asset opens on its live 3D preview
+  // a film opens on its video; everything else on its live 3D preview
   useEffect(() => {
-    setView('live')
+    setView(asset?.video ? 'video' : asset && has3D(asset) ? 'live' : 'renders')
     setRenderIndex(0)
-  }, [asset?.id])
+  }, [asset])
 
   useEffect(() => {
     if (!asset) return
@@ -127,6 +141,7 @@ export function InspectorModal() {
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       const k = e.key.toLowerCase()
       if (k === 'escape') close()
+      else if (view !== 'live') return
       else if (k === 'w') toggleWireframe()
       else if (k === 'r') toggleAutoRotate()
       else if (k === 'f') resetCamera()
@@ -134,7 +149,7 @@ export function InspectorModal() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [asset, close, toggleWireframe, toggleAutoRotate, resetCamera, setLighting])
+  }, [asset, view, close, toggleWireframe, toggleAutoRotate, resetCamera, setLighting])
 
   const requestSimilar = () => {
     close()
@@ -156,7 +171,7 @@ export function InspectorModal() {
           onClick={close}
           role="dialog"
           aria-modal="true"
-          aria-label={`${asset.title} — 3D inspector`}
+          aria-label={`${asset.title}, project preview`}
         >
           <motion.div
             className="relative flex w-full max-w-[1400px] flex-col overflow-hidden bg-card shadow-[var(--shadow-lift)] md:rounded-[1.5rem] md:border md:border-line lg:flex-row"
@@ -168,27 +183,30 @@ export function InspectorModal() {
           >
             {/* Viewport */}
             <div className="relative h-[56vh] min-h-[320px] flex-1 lg:h-auto">
-              <Suspense fallback={<CanvasFallback />}>
-                <InspectorCanvas asset={asset} />
-              </Suspense>
+              {show3D && (
+                <Suspense fallback={<CanvasFallback />}>
+                  <InspectorCanvas asset={asset} />
+                </Suspense>
+              )}
 
-              <div className={`pointer-events-none absolute left-4 top-4 flex flex-col gap-0.5 font-mono text-[11px] ${dark ? 'text-white/70' : 'text-ink-2'}`}>
-                <span>
-                  {viewer.wireframe ? 'Wireframe' : lightingPresets[viewer.lighting].label} · {asset.polyCount}
-                </span>
-                <LoadProgress size={asset.previewSize} />
-              </div>
+              {view === 'live' && (
+                <div className={`pointer-events-none absolute left-4 top-4 flex flex-col gap-0.5 font-mono text-[11px] ${dark ? 'text-white/70' : 'text-ink-2'}`}>
+                  <span>
+                    {viewer.wireframe ? 'Wireframe' : lightingPresets[viewer.lighting].label}
+                    {asset.polyCount && ` · ${asset.polyCount}`}
+                  </span>
+                  <LoadProgress size={asset.previewSize} />
+                </div>
+              )}
 
+              {asset.video && view === 'video' && <FilmView src={asset.video.src} poster={asset.video.poster} title={asset.title} />}
               {renders.length > 0 && view === 'renders' && <RendersView renders={renders} index={renderIndex} onIndex={setRenderIndex} />}
 
-              {renders.length > 0 && (
+              {views.length > 1 && (
                 <div className="absolute left-4 top-[3.75rem] z-10 flex rounded-full md:left-1/2 md:top-4 md:-translate-x-1/2 border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)] backdrop-blur" role="tablist" aria-label="Preview mode">
-                  {(
-                    [
-                      ['live', Box, 'Live 3D'],
-                      ['renders', Images, 'Renders'],
-                    ] as const
-                  ).map(([v, Icon, label]) => (
+                  {views.map((v) => {
+                    const [Icon, label] = v === 'video' ? [Play, 'Film'] : v === 'live' ? [Box, 'Live 3D'] : [Images, asset.video ? 'Stills' : 'Renders']
+                    return (
                     <button
                       key={v}
                       type="button"
@@ -199,11 +217,12 @@ export function InspectorModal() {
                     >
                       <Icon className="h-3.5 w-3.5" /> {label}
                     </button>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
 
-              <div className={`absolute inset-x-0 bottom-4 flex justify-center px-3 ${view === 'renders' ? 'hidden' : ''}`}>
+              <div className={`absolute inset-x-0 bottom-4 flex justify-center px-3 ${view === 'live' ? '' : 'hidden'}`}>
                 <div className="flex max-w-full flex-wrap items-center justify-center gap-0.5 rounded-full border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)] backdrop-blur">
                   <ToolButton active={viewer.wireframe} onClick={toggleWireframe} icon={Grid3x3} label="Wireframe" hotkey="W" />
                   <ToolButton active={viewer.autoRotate} onClick={toggleAutoRotate} icon={RotateCw} label="Rotate" hotkey="R" />
@@ -219,7 +238,7 @@ export function InspectorModal() {
               <button
                 type="button"
                 onClick={close}
-                aria-label="Close inspector"
+                aria-label="Close preview"
                 className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full border border-line bg-card/95 text-ink shadow-[var(--shadow-soft)] lg:hidden"
               >
                 <X className="h-[18px] w-[18px]" />
@@ -231,7 +250,7 @@ export function InspectorModal() {
               <button
                 type="button"
                 onClick={close}
-                aria-label="Close inspector"
+                aria-label="Close preview"
                 className="absolute right-6 top-6 hidden h-10 w-10 place-items-center rounded-full border border-line text-ink-2 transition-colors hover:border-ink hover:text-ink lg:grid"
               >
                 <X className="h-[18px] w-[18px]" />
@@ -254,13 +273,17 @@ export function InspectorModal() {
               )}
 
               <dl className="mt-8 divide-y divide-line border-y border-line">
-                {[
-                  ['Polycount', asset.polyCount],
-                  ['Textures', asset.textures],
-                  ['Topology', asset.topology],
-                  ['Software', asset.software.join(', ')],
-                  ['Year', String(asset.year)],
-                ].map(([k, v]) => (
+                {(
+                  [
+                    ['Duration', asset.video?.duration],
+                    ['Format', asset.video?.format],
+                    ['Polycount', asset.polyCount],
+                    ['Textures', asset.textures],
+                    ['Topology', asset.topology],
+                    ['Software', asset.software.join(', ')],
+                    ['Year', String(asset.year)],
+                  ].filter(([, v]) => v) as [string, string][]
+                ).map(([k, v]) => (
                   <div key={k} className="flex justify-between gap-6 py-3 text-sm">
                     <dt className="text-muted">{k}</dt>
                     <dd className="text-right text-ink">{v}</dd>
@@ -271,7 +294,7 @@ export function InspectorModal() {
               <button type="button" onClick={requestSimilar} className="btn btn-primary mt-8 w-full justify-center">
                 Request something similar
               </button>
-              <p className="mt-4 text-center text-xs text-muted">Drag to orbit · scroll to zoom · Esc to close</p>
+              <p className="mt-4 text-center text-xs text-muted">{show3D ? 'Drag to orbit · scroll to zoom · Esc to close' : 'Esc to close'}</p>
             </aside>
           </motion.div>
         </motion.div>
