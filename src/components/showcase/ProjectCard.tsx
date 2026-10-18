@@ -29,7 +29,7 @@ export function ProjectCard({ project }: { project: Project }) {
           decoding="async"
           className="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.03]"
         />
-        <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-card/90 px-3 py-1.5 text-[13px] font-medium text-ink shadow-[var(--shadow-soft)] backdrop-blur transition-colors group-hover:bg-ink group-hover:text-paper">
+        <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 text-[13px] font-medium text-ink shadow-[var(--shadow-soft)] transition-colors group-hover:bg-ink group-hover:text-paper">
           <Box className="h-3.5 w-3.5" /> Preview in 3D
         </span>
       </div>

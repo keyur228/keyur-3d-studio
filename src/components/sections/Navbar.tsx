@@ -47,7 +47,7 @@ export function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-[70] transition-[background-color,border-color,backdrop-filter] duration-300 ${
-        scrolled || open ? 'border-b border-line bg-paper/85 backdrop-blur-md' : 'border-b border-transparent'
+        scrolled || open ? 'border-b border-line bg-paper/95' : 'border-b border-transparent'
       }`}
     >
       <nav className="container-page flex h-16 items-center justify-between gap-6 md:h-[4.5rem]" aria-label="Primary">

@@ -5,6 +5,7 @@ import { useStore, type LightingPreset } from '@/store/useStore'
 import { lightingPresets } from '@/components/three/lightingPresets'
 import { scrollToTarget } from '@/lib/scroll'
 import { has3D } from '@/lib/project'
+import { prefetchProject } from '@/lib/prefetch'
 import { CharacterPanel } from './CharacterPanel'
 
 // Code-split: the inspector only downloads when an asset is opened.
@@ -109,11 +110,19 @@ export function InspectorModal() {
   const views: View[] = asset ? [...(show3D ? ['live' as const] : []), ...(renders.length ? ['renders' as const] : [])] : []
   const [view, setView] = useState<View>('live')
   const [renderIndex, setRenderIndex] = useState(0)
+  // the 3D canvas mounts once the open animation has finished: creating the GL context, parsing the model and compiling shaders
+  // in the same frames as the animation is what makes it stutter
+  const [canvasOn, setCanvasOn] = useState(false)
 
   // a project opens on its live 3D preview
   useEffect(() => {
     setView(asset && has3D(asset) ? 'live' : 'renders')
     setRenderIndex(0)
+    setCanvasOn(false)
+    if (!asset) return
+    prefetchProject(asset) // normally already warm from hovering the card; this covers keyboard / touch opens
+    const t = window.setTimeout(() => setCanvasOn(true), 800) // safety net if the animation callback never fires
+    return () => window.clearTimeout(t)
   }, [asset])
 
   useEffect(() => {
@@ -145,7 +154,7 @@ export function InspectorModal() {
       {asset && (
         <motion.div
           key={asset.id}
-          className="fixed inset-0 z-[80] flex items-stretch justify-center bg-ink/40 backdrop-blur-sm md:p-6"
+          className="fixed inset-0 z-[80] flex items-stretch justify-center bg-ink/55 md:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -161,15 +170,18 @@ export function InspectorModal() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.99 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            onAnimationComplete={() => setCanvasOn(true)}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Viewport */}
             <div className="relative h-[56vh] min-h-[320px] flex-1 lg:h-auto">
-              {show3D && (
+              {show3D && (canvasOn ? (
                 <Suspense fallback={<CanvasFallback />}>
                   <InspectorCanvas asset={asset} />
                 </Suspense>
-              )}
+              ) : (
+                <CanvasFallback />
+              ))}
 
               {view === 'live' && (
                 <div className={`pointer-events-none absolute left-4 top-4 flex flex-col gap-0.5 font-mono text-[11px] ${dark ? 'text-white/70' : 'text-ink-2'}`}>
@@ -188,7 +200,7 @@ export function InspectorModal() {
               {renders.length > 0 && view === 'renders' && <RendersView renders={renders} index={renderIndex} onIndex={setRenderIndex} />}
 
               {views.length > 1 && (
-                <div className="absolute left-4 top-[3.75rem] z-10 flex rounded-full md:left-1/2 md:top-4 md:-translate-x-1/2 border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)] backdrop-blur" role="tablist" aria-label="Preview mode">
+                <div className="absolute left-4 top-[3.75rem] z-10 flex rounded-full md:left-1/2 md:top-4 md:-translate-x-1/2 border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)]" role="tablist" aria-label="Preview mode">
                   {views.map((v) => {
                     const [Icon, label] = v === 'live' ? [Box, 'Live 3D'] : [Images, 'Renders']
                     return (
@@ -208,7 +220,7 @@ export function InspectorModal() {
               )}
 
               <div className={`absolute inset-x-0 bottom-4 flex justify-center px-3 ${view === 'live' ? '' : 'hidden'}`}>
-                <div className="flex max-w-full flex-wrap items-center justify-center gap-0.5 rounded-full border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)] backdrop-blur">
+                <div className="flex max-w-full flex-wrap items-center justify-center gap-0.5 rounded-full border border-line bg-card/95 p-1 shadow-[var(--shadow-soft)]">
                   <ToolButton active={viewer.wireframe} onClick={toggleWireframe} icon={Grid3x3} label="Wireframe" hotkey="W" />
                   <ToolButton active={viewer.autoRotate} onClick={toggleAutoRotate} icon={RotateCw} label="Rotate" hotkey="R" />
                   <span className="mx-1 h-5 w-px bg-line" />

@@ -7,6 +7,7 @@ import type { Project } from '@/data/portfolioData'
 import { ProceduralModel } from './ProceduralModels'
 import { MorphLoader } from './MorphLoader'
 import { DoraemonModel } from './DoraemonModel'
+import { useStagedReveal } from './useStagedReveal'
 
 interface ViewProps {
   wireframe: boolean
@@ -49,11 +50,18 @@ function GLBModel({ url, wireframe, clay }: { url: string } & Omit<ViewProps, 'w
     })
     proxies.forEach((p) => p.removeFromParent())
     const originals = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>()
+    // a real-time shadow pass re-draws the whole scene: only worth it for light models (the big interior skips it)
+    let tris = 0
+    scene.traverse((o) => {
+      const mesh = o as THREE.Mesh
+      if (mesh.isMesh) tris += (mesh.geometry.index ? mesh.geometry.index.count : mesh.geometry.attributes.position.count) / 3
+    })
+    const shadows = tris < 120_000
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh
       if (!mesh.isMesh) return
-      mesh.castShadow = true
-      mesh.receiveShadow = true
+      mesh.castShadow = shadows
+      mesh.receiveShadow = shadows
       mesh.material = Array.isArray(mesh.material) ? mesh.material.map((m) => m.clone()) : mesh.material.clone()
       originals.set(mesh, mesh.material)
     })
@@ -117,7 +125,13 @@ function GLBModel({ url, wireframe, clay }: { url: string } & Omit<ViewProps, 'w
     [gltf, originals, clayMaterial, url],
   )
 
-  return <primitive object={root} />
+  const ready = useStagedReveal(root)
+  return (
+    <>
+      {!ready && <MorphLoader />}
+      <primitive object={root} />
+    </>
+  )
 }
 
 /**

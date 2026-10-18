@@ -5,6 +5,8 @@ import * as THREE from 'three'
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { useStore } from '@/store/useStore'
+import { MorphLoader } from './MorphLoader'
+import { useStagedReveal } from './useStagedReveal'
 
 /**
  * The interactive Doraemon bundle (Blender → glTF).
@@ -35,6 +37,9 @@ export const EXPRESSIONS: Record<string, Record<string, number>> = {
 const GIGGLE = EXPRESSIONS.laugh
 const LOOK_KEYS = ['eyeLookUp', 'eyeLookDown', 'eyeLookIn', 'eyeLookOut'].flatMap((k) => [`${k}Left`, `${k}Right`])
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
+/** Every morph target the procedural layer writes (reset each frame before the mixer runs). Built once, not per frame. */
+const CONTROLLED = new Set<string>([...LOOK_KEYS, ...Object.keys(GIGGLE), ...Object.values(EXPRESSIONS).flatMap((e) => Object.keys(e))])
+const LOOK_TARGET = new THREE.Vector2()
 
 interface Hit {
   name: string
@@ -71,8 +76,8 @@ export function DoraemonModel({ url, wireframe, clay }: { url: string; wireframe
         hitMeshes.push(mesh)
         return
       }
-      mesh.castShadow = true
-      mesh.receiveShadow = !mesh.name.includes('Eyes')
+      mesh.castShadow = false // ~100k skinned triangles: the contact shadow under the character is enough
+      mesh.receiveShadow = false
       mesh.material = Array.isArray(mesh.material) ? mesh.material.map((m) => m.clone()) : mesh.material.clone()
       originals.set(mesh, mesh.material)
       meshes.push(mesh)
@@ -295,10 +300,9 @@ export function DoraemonModel({ url, wireframe, clay }: { url: string; wireframe
     if (!mixer) return
     const d = Math.min(dt, 1 / 20)
     // baseline: undo last frame's procedural additions before the mixer writes this frame's animated values
-    const controlled = new Set<string>([...LOOK_KEYS, ...Object.keys(GIGGLE), ...Object.values(EXPRESSIONS).flatMap((e) => Object.keys(e))])
     model.morphMeshes.forEach((m) => {
       const dict = m.morphTargetDictionary!
-      controlled.forEach((k) => {
+      CONTROLLED.forEach((k) => {
         const i = dict[k]
         if (i !== undefined) m.morphTargetInfluences![i] = 0
       })
@@ -338,7 +342,7 @@ export function DoraemonModel({ url, wireframe, clay }: { url: string; wireframe
           const local = rootObj.worldToLocal(hit.clone())
           const nx = clamp(local.x / 0.7, -1, 1)
           const nz = clamp((local.y - 1.076) / 0.5, -1, 1)
-          s.look.lerp(new THREE.Vector2(nx, nz), 1 - Math.exp(-d * 10))
+          s.look.lerp(LOOK_TARGET.set(nx, nz), 1 - Math.exp(-d * 10))
         }
       }
       const { x, y } = s.look
@@ -393,9 +397,14 @@ export function DoraemonModel({ url, wireframe, clay }: { url: string; wireframe
     document.body.style.cursor = pickHit(e) ? 'pointer' : ''
   }
 
+  const ready = useStagedReveal(model.scene)
+
   return (
+    <>
+    {!ready && <MorphLoader />}
     <group ref={root} position={[0, FLOOR_Y, 0]} scale={SCALE}>
       <primitive object={model.scene} onPointerDown={onDown} onPointerMove={onMove} onPointerOut={() => (document.body.style.cursor = '')} />
     </group>
+    </>
   )
 }
