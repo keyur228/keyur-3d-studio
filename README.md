@@ -107,6 +107,8 @@ VITE_WEB3FORMS_ACCESS_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 Restart `npm run dev` after editing `.env`. If the configured service fails, the form falls back to `mailto:` automatically.
 
+**hCaptcha is required.** This form's Web3Forms key has hCaptcha spam protection switched on, and Web3Forms rejects any submission without a token ("hCaptcha Token is mandatory"). The form shows the hCaptcha checkbox (Web3Forms' shared free-plan site key `50b2fe65-b00b-4b9e-ad62-3ba471098be2`) and sends its token as `h-captcha-response`. The build's Content-Security-Policy allows `hcaptcha.com` and `*.hcaptcha.com` for that. If you switch hCaptcha off in the Web3Forms dashboard, the checkbox can stay; Web3Forms simply ignores the token.
+
 **This site's deployment** uses Web3Forms: the access key is the repository secret `VITE_WEB3FORMS_ACCESS_KEY` and `deploy.yml` passes it (with `VITE_FORM_PROVIDER=web3forms`) to the build. A form key is public in any client-side page, so abuse is limited in two layers: the page strips control characters, caps field lengths, has a decoy honeypot field, a 60 s per-browser cooldown and a 15 s request timeout, and ships a Content-Security-Policy that only allows connections to this origin and the form services; the rest has to be set in the Web3Forms dashboard (spam protection / captcha, and a domain allow-list if your plan has one). Rotate the key there and update the secret if it is ever abused.
 
 ---

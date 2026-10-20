@@ -1,10 +1,14 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { ArrowRight, Check, Copy, Loader2 } from 'lucide-react'
+import type HCaptchaInstance from '@hcaptcha/react-hcaptcha'
 import { profile, requestOptions } from '@/data/portfolioData'
-import { copyToClipboard, isEmailServiceConfigured, submitAssetRequest, type AssetRequest } from '@/lib/email'
+import { copyToClipboard, HCAPTCHA_SITEKEY, isEmailServiceConfigured, needsCaptcha, submitAssetRequest, type AssetRequest } from '@/lib/email'
 import { useStore } from '@/store/useStore'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Reveal } from '@/components/ui/Reveal'
+
+// The captcha widget (and hCaptcha's script) only loads once the form is close to the viewport.
+const HCaptcha = lazy(() => import('@hcaptcha/react-hcaptcha'))
 
 const initial: AssetRequest = {
   name: '',
@@ -79,6 +83,33 @@ export function RequestForm() {
   const [decoy, setDecoy] = useState('') // honeypot: hidden from people, filled in by naive bots
   const pushToast = useStore((s) => s.pushToast)
   const serviceReady = isEmailServiceConfigured()
+  const captchaRequired = needsCaptcha()
+  const [captchaToken, setCaptchaToken] = useState('')
+  const [captchaError, setCaptchaError] = useState('')
+  const captchaRef = useRef<HCaptchaInstance>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const [nearForm, setNearForm] = useState(false)
+
+  useEffect(() => {
+    const el = formRef.current
+    if (!el || !captchaRequired) return
+    // load when the form scrolls near, or as soon as someone starts using it, whichever comes first
+    const show = () => setNearForm(true)
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && show(), { rootMargin: '800px 0px' })
+    io.observe(el)
+    el.addEventListener('focusin', show, { once: true })
+    el.addEventListener('pointerdown', show, { once: true })
+    return () => {
+      io.disconnect()
+      el.removeEventListener('focusin', show)
+      el.removeEventListener('pointerdown', show)
+    }
+  }, [captchaRequired])
+
+  const resetCaptcha = () => {
+    captchaRef.current?.resetCaptcha()
+    setCaptchaToken('')
+  }
 
   const set = <K extends keyof AssetRequest>(k: K, v: AssetRequest[K]) => {
     setValues((s) => ({ ...s, [k]: v }))
@@ -100,9 +131,14 @@ export function RequestForm() {
       pushToast({ tone: 'error', title: 'A few fields need attention', description: Object.values(errs)[0] })
       return
     }
+    if (captchaRequired && !captchaToken) {
+      setCaptchaError('Please tick the captcha so I know you’re not a bot.')
+      pushToast({ tone: 'error', title: 'One more step', description: 'Please complete the captcha above the Send button.' })
+      return
+    }
     setSending(true)
     try {
-      const res = await submitAssetRequest(values, decoy)
+      const res = await submitAssetRequest(values, decoy, captchaToken)
       if (res.status === 'cooldown') {
         pushToast({ tone: 'info', title: 'Request already sent', description: `Please wait ${res.waitSeconds}s before sending another one.` })
       } else if (res.status === 'sent') {
@@ -117,6 +153,8 @@ export function RequestForm() {
       }
     } finally {
       setSending(false)
+      // hCaptcha tokens are single-use, so every attempt needs a fresh tick
+      if (captchaRequired) resetCaptcha()
     }
   }
 
@@ -168,7 +206,7 @@ export function RequestForm() {
 
           {/* Form */}
           <Reveal className="lg:col-span-8">
-            <form onSubmit={onSubmit} noValidate className="surface relative space-y-8 p-6 shadow-[var(--shadow-soft)] md:p-10">
+            <form ref={formRef} onSubmit={onSubmit} noValidate className="surface relative space-y-8 p-6 shadow-[var(--shadow-soft)] md:p-10">
               {/* honeypot: off-screen, not focusable, ignored by assistive tech */}
               <input
                 type="text"
@@ -219,6 +257,30 @@ export function RequestForm() {
                   data-lenis-prevent
                 />
               </Field>
+
+              {captchaRequired && (
+                <div>
+                  <p className="text-sm font-medium text-ink">Quick check</p>
+                  <div className="mt-2 min-h-[78px]">
+                    {nearForm && (
+                      <Suspense fallback={null}>
+                        <HCaptcha
+                          ref={captchaRef}
+                          sitekey={HCAPTCHA_SITEKEY}
+                          reCaptchaCompat={false}
+                          onVerify={(token) => {
+                            setCaptchaToken(token)
+                            setCaptchaError('')
+                          }}
+                          onExpire={() => setCaptchaToken('')}
+                          onError={() => setCaptchaToken('')}
+                        />
+                      </Suspense>
+                    )}
+                  </div>
+                  {captchaError && <p className="mt-1.5 text-sm text-red-700">{captchaError}</p>}
+                </div>
+              )}
 
               <div className="flex flex-col-reverse gap-4 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm text-muted">{serviceReady ? 'Sent securely to my inbox.' : 'Opens your email app with everything pre-filled.'}</p>

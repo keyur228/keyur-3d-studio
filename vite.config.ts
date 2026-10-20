@@ -19,21 +19,25 @@ const preloadFonts = (): Plugin => ({
 
 /**
  * Content-Security-Policy for the production build (GitHub Pages can't send headers, so it is a <meta> tag).
- * Scripts only from this origin (+ WebAssembly for the meshopt decoder), no plugins, no <base> hijacking, and the page can only
- * talk to itself and the three form services the request form supports, so an injected script couldn't ship data elsewhere.
+ * Scripts only from this origin (+ WebAssembly for the meshopt decoder) and hCaptcha, no plugins, no <base> hijacking, and the
+ * page can only talk to itself, hCaptcha and the three form services the request form supports, so an injected script couldn't
+ * ship data elsewhere. hCaptcha is required because Web3Forms' spam protection rejects submissions without its token; the
+ * sources below are the ones hCaptcha documents for CSP.
  * Not applied in dev: Vite's HMR needs inline scripts and a websocket.
  */
+const HCAPTCHA = 'https://hcaptcha.com https://*.hcaptcha.com'
 const contentSecurityPolicy = (): Plugin => ({
   name: 'content-security-policy',
   apply: 'build',
   transformIndexHtml() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'wasm-unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'wasm-unsafe-eval' ${HCAPTCHA}`,
+      `style-src 'self' 'unsafe-inline' ${HCAPTCHA}`,
       "img-src 'self' data: blob:",
       "font-src 'self' data:",
-      "connect-src 'self' blob: data: https://api.web3forms.com https://formspree.io https://api.emailjs.com",
+      `connect-src 'self' blob: data: https://api.web3forms.com https://formspree.io https://api.emailjs.com ${HCAPTCHA}`,
+      `frame-src ${HCAPTCHA}`,
       "worker-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",

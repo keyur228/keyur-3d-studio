@@ -107,6 +107,13 @@ export function isEmailServiceConfigured() {
   return configuredProvider() !== null
 }
 
+/**
+ * Web3Forms' hCaptcha spam protection is switched on for this form's key, so every submission
+ * must carry an `h-captcha-response` token. Free plans must use Web3Forms' shared site key.
+ */
+export const HCAPTCHA_SITEKEY = '50b2fe65-b00b-4b9e-ad62-3ba471098be2'
+export const needsCaptcha = () => configuredProvider() === 'web3forms'
+
 async function postJSON(url: string, payload: unknown) {
   const ctrl = new AbortController()
   const timer = window.setTimeout(() => ctrl.abort(), 15_000)
@@ -136,8 +143,8 @@ async function assertAccepted(res: Response) {
   return res
 }
 
-const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
-  web3forms: async (req) =>
+const senders: Record<Provider, (req: AssetRequest, captcha: string) => Promise<unknown>> = {
+  web3forms: async (req, captcha) =>
     assertAccepted(await postJSON('https://api.web3forms.com/submit', {
       access_key: env.VITE_WEB3FORMS_ACCESS_KEY,
       subject: buildSubject(req),
@@ -151,6 +158,7 @@ const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
       reference: req.referenceLink,
       message: buildBody(req),
       botcheck: '',
+      'h-captcha-response': captcha,
     })),
   formspree: async (req) =>
     assertAccepted(
@@ -181,10 +189,11 @@ const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
  * Dual-action submit:
  *  1. If an email service is configured via env vars, send through it.
  *  2. Otherwise (or if the service fails) open a pre-filled mailto: link.
+ * `captcha` is the hCaptcha token (required by Web3Forms for this form).
  * `honeypot` is the value of the hidden decoy field: real visitors never fill it, so a non-empty value is dropped silently
  * (the bot is told it worked). A 60 s per-browser cooldown stops accidental double sends and trivial scripted floods.
  */
-export async function submitAssetRequest(input: AssetRequest, honeypot = ''): Promise<SubmitResult> {
+export async function submitAssetRequest(input: AssetRequest, honeypot = '', captcha = ''): Promise<SubmitResult> {
   const provider = configuredProvider()
   if (honeypot.trim()) return { status: 'sent', provider: provider ?? 'web3forms' }
   const wait = cooldownRemaining()
@@ -192,7 +201,7 @@ export async function submitAssetRequest(input: AssetRequest, honeypot = ''): Pr
   const req = sanitizeRequest(input)
   if (provider) {
     try {
-      await senders[provider](req)
+      await senders[provider](req, captcha)
       markSent()
       return { status: 'sent', provider }
     } catch (err) {
