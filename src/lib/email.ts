@@ -8,7 +8,6 @@ export interface AssetRequest {
   platform: string
   referenceLink: string
   brief: string
-  budget: string
   timeline: string
 }
 
@@ -25,7 +24,7 @@ const TARGET_EMAIL = profile.email
 // -- abuse hardening --------------------------------------------------------------------
 // The form key is public in any client-side form (it ships in the page), so the real limits are server-side in the Web3Forms
 // dashboard. These client-side guards stop accidents, naive bots and header/format injection before a request leaves the page.
-const MAX = { name: 80, email: 120, requestType: 80, style: 80, platform: 80, referenceLink: 300, brief: 3000, budget: 80, timeline: 80 } as const
+const MAX = { name: 80, email: 120, requestType: 80, style: 80, platform: 80, referenceLink: 300, brief: 3000, timeline: 80 } as const
 const COOLDOWN_MS = 60_000
 const COOLDOWN_KEY = 'keyur:last-request'
 const oneLine = (v: string, max: number) => v.replace(/[\u0000-\u001f\u007f\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max)
@@ -41,7 +40,6 @@ export function sanitizeRequest(req: AssetRequest): AssetRequest {
     platform: oneLine(req.platform, MAX.platform),
     referenceLink: oneLine(req.referenceLink, MAX.referenceLink),
     brief: multiLine(req.brief, MAX.brief),
-    budget: oneLine(req.budget, MAX.budget),
     timeline: oneLine(req.timeline, MAX.timeline),
   }
 }
@@ -81,7 +79,6 @@ export function buildBody(req: AssetRequest) {
     `Request Type: ${req.requestType}`,
     `Target Style: ${req.style}`,
     `Platform / Polycount Target: ${req.platform}`,
-    `Budget: ${req.budget}`,
     `Timeline: ${req.timeline}`,
     `Reference: ${req.referenceLink || '—'}`,
     ``,
@@ -150,7 +147,6 @@ const senders: Record<Provider, (req: AssetRequest) => Promise<unknown>> = {
       request_type: req.requestType,
       style: req.style,
       platform: req.platform,
-      budget: req.budget,
       timeline: req.timeline,
       reference: req.referenceLink,
       message: buildBody(req),

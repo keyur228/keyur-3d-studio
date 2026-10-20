@@ -290,6 +290,5 @@ export const requestOptions = {
   types: ['Single Custom 3D Asset', 'Full Asset Pack', '3D Animation / Scene', 'Other Inquiry'],
   styles: ['Realistic PBR', 'Low-Poly / Stylized', 'Sci-Fi / Hard-Surface', 'Architectural / Environment'],
   platforms: ['WebGL / Three.js', 'Unreal / Unity', 'Blender Native Render'],
-  budgets: ['< $250', '$250 – $750', '$750 – $2,000', '$2,000 – $5,000', '$5,000+', 'Not sure yet'],
   timelines: ['ASAP (< 1 week)', '1 – 2 weeks', '2 – 4 weeks', '1 – 2 months', 'Flexible'],
 }

@@ -14,7 +14,6 @@ const initial: AssetRequest = {
   platform: requestOptions.platforms[0],
   referenceLink: '',
   brief: '',
-  budget: requestOptions.budgets[1],
   timeline: requestOptions.timelines[2],
 }
 
@@ -107,7 +106,7 @@ export function RequestForm() {
       if (res.status === 'cooldown') {
         pushToast({ tone: 'info', title: 'Request already sent', description: `Please wait ${res.waitSeconds}s before sending another one.` })
       } else if (res.status === 'sent') {
-        pushToast({ tone: 'success', title: 'Request sent', description: `Thanks ${values.name.split(' ')[0]} — I'll reply to ${values.email} within 24–48 hours.` })
+        pushToast({ tone: 'success', title: 'Email sent successfully' })
         setValues(initial)
       } else {
         pushToast({
@@ -195,15 +194,6 @@ export function RequestForm() {
               <Choice label="Platform / polycount target" options={requestOptions.platforms} value={values.platform} onChange={(v) => set('platform', v)} />
 
               <div className="grid gap-6 sm:grid-cols-2">
-                <Field label="Budget" htmlFor="rq-budget">
-                  <select id="rq-budget" className={`${inputCls} h-12`} value={values.budget} onChange={(e) => set('budget', e.target.value)}>
-                    {requestOptions.budgets.map((b) => (
-                      <option key={b} value={b}>
-                        {b}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
                 <Field label="Timeline" htmlFor="rq-timeline">
                   <select id="rq-timeline" className={`${inputCls} h-12`} value={values.timeline} onChange={(e) => set('timeline', e.target.value)}>
                     {requestOptions.timelines.map((t) => (
@@ -213,11 +203,10 @@ export function RequestForm() {
                     ))}
                   </select>
                 </Field>
+                <Field label="Reference link" htmlFor="rq-ref" hint="Optional" error={errors.referenceLink}>
+                  <input id="rq-ref" className={`${inputCls} h-12`} type="url" value={values.referenceLink} onChange={(e) => set('referenceLink', e.target.value)} placeholder="https://artstation.com/…" aria-invalid={!!errors.referenceLink} />
+                </Field>
               </div>
-
-              <Field label="Reference link" htmlFor="rq-ref" hint="Optional" error={errors.referenceLink}>
-                <input id="rq-ref" className={`${inputCls} h-12`} type="url" value={values.referenceLink} onChange={(e) => set('referenceLink', e.target.value)} placeholder="https://artstation.com/…" aria-invalid={!!errors.referenceLink} />
-              </Field>
 
               <Field label="Project brief" htmlFor="rq-brief" error={errors.brief}>
                 <textarea
